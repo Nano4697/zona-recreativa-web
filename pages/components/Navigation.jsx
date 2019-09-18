@@ -74,7 +74,7 @@ class Navigation extends Component {
                             Acerca de
                         </a>
                     </Link>
-                    <Link href="/adminLogin">
+                    <Link href="/">
                         <a className="nav-link px-lg-4 px-xl-2 px-sm-2 mx-md-2 text-light font-weight-bold">
                             Admin
                         </a>

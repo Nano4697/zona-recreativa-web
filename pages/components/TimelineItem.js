@@ -30,15 +30,21 @@ const TimelineItem = ({ data }) => (
         <div className="timeline-item-content py-1 col-auto d-block-flex ">
             <h6 className="row">
                 <time className="badge badge-pill ml-2 badge-success col-auto">
-                    { validate(validate(data).time) }
+                    { typeof data !== 'undefined' &&
+                        typeof data.time !== 'undefined' &&
+                        data.time }
                 </time>
                 <span className="tag col-auto mt-md-0 mt-2 ml-md-auto">
-                { getDuration(validate(ifData(data).duracion))}
+                { typeof data !== 'undefined' &&
+                    typeof data.duracion !== 'undefined' &&
+                    getDuration(data.duracion)}
                 </span>
             </h6>
 
             <p className="mb-1 ml-0">
-                { validate(validate(data).text) }
+                { typeof data !== 'undefined' &&
+                    typeof data.text !== 'undefined' &&
+                    data.text }
             </p>
             <span className="circle" />
         </div>

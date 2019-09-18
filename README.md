@@ -34,6 +34,12 @@ Timeline based on a tutorial blog made by Florian Pop
 
 https://www.florin-pop.com/blog/2019/04/how-to-create-a-timeline-with-react/
 
+
+## Dev notes
 Filter
 
 https://docs.searchkit.co/stable/
+
+Firebase + react
+
+https://www.freecodecamp.org/news/react-and-firebase-are-all-you-need-to-host-your-web-apps-f7ab55919f53/

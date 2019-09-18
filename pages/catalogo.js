@@ -1,5 +1,6 @@
 import Layout from './components/GeneralLayout';
 import Navigation from './components/Navigation';
+import Footer from './components/Footer';
 import Package from './components/Package';
 
 
@@ -26,6 +27,7 @@ export default function catalogo ()
                 </div>
                 {multPrint()}
             </Layout>
+            <Footer />
         </div>
     )
 }
