@@ -43,3 +43,5 @@ https://docs.searchkit.co/stable/
 Firebase + react
 
 https://www.freecodecamp.org/news/react-and-firebase-are-all-you-need-to-host-your-web-apps-f7ab55919f53/
+
+https://www.robinwieruch.de/firebase-deploy-react-js
