@@ -24,9 +24,9 @@ Also you'll need the following packages:
 
 `npm install --save-dev typescript @types/react @types/node`
 
-`npm i react-google-maps`
+`npm i react-multi-carousel`
 
-
+`npm install --save next-fonts`
 
 ## About
 
@@ -36,11 +36,17 @@ https://www.florin-pop.com/blog/2019/04/how-to-create-a-timeline-with-react/
 
 
 ## Dev notes
-Filter
+### Filter
 
 https://docs.searchkit.co/stable/
 
-Firebase + react
+### Others
+
+`npm i serverless-mysql sql-template-strings`
+
+`npm i react-google-maps`
+
+### Firebase + react
 
 https://www.freecodecamp.org/news/react-and-firebase-are-all-you-need-to-host-your-web-apps-f7ab55919f53/
 

@@ -1,7 +1,8 @@
 const withImages = require('next-images')
 const withCSS = require('@zeit/next-css')
+const withFonts = require('next-fonts');
 
-module.exports = withImages(withCSS({
+module.exports = withFonts(withImages(withCSS({
   /* config options here */
     // distDir: 'build',
 
@@ -26,4 +27,4 @@ module.exports = withImages(withCSS({
 
         return paths;
     }
-}))
+})))

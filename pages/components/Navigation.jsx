@@ -6,11 +6,11 @@ import Nav from 'react-bootstrap/Nav'
 import Image from 'react-bootstrap/Image'
 import Badge from 'react-bootstrap/Badge'
 import Link from 'next/link';
-import '../style/timeline-style.css'
+import '../style/fullPage.css'
 
 class Navigation extends Component {
     render() {
-        return (<Navbar className="shadow sticky-top " collapseOnSelect="collapseOnSelect" expand="md" style={{background: "#f5616f"}} /* bg="light" variant="light"*/>
+        return (<Navbar className="sticky-top " collapseOnSelect="collapseOnSelect" expand="md" style={{background: "#f5616f"}} /* bg="light" variant="light"*/>
             <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
             <Navbar.Collapse className="justify-content-between" id="responsive-navbar-nav">
                 {/*
@@ -49,7 +49,7 @@ class Navigation extends Component {
                 }
                 <Navbar.Brand className="d-none d-md-block col-xs-1 col-md-1 ml-5">
                     <Link href="/">
-                        <Image className="d-none d-md-block " src={require('../resources/logo-1.png')}  style={{cursor:'pointer', height: "40px" }} fluid/>
+                        <Image className="d-none d-md-block " src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Flogo-1.png?alt=media&token=75578cc4-3f13-4a93-88ea-e84c6a2b8216"  style={{cursor:'pointer', height: "40px" }} fluid/>
                     </Link>
                 </Navbar.Brand>
                 {/*

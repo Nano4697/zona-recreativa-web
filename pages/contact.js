@@ -2,6 +2,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
 import Navigation from './components/Navigation'
+import Footer from './components/Footer';
 import Layout from './components/GeneralLayout'
 
 import React, { Component } from 'react';

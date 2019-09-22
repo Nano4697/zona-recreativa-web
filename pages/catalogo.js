@@ -27,7 +27,6 @@ export default function catalogo ()
                 </div>
                 {multPrint()}
             </Layout>
-            <Footer />
         </div>
     )
 }
