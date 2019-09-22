@@ -79,7 +79,7 @@ class Album extends React.Component {
 
     render () {
         return (
-            <div className="col-9 mx-auto" style={{ display: "block", minHeight: "1px", overflow: "auto"}}>
+            <div className="col-12 mx-auto" style={{ display: "block", minHeight: "1px", overflow: "auto"}}>
                 <Gallery images={this.state.images} onSelectImage={this.onSelectImage} showLightboxThumbnails={true}/>
             </div>
         );

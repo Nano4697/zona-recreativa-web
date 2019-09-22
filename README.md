@@ -46,6 +46,9 @@ https://docs.searchkit.co/stable/
 
 `npm i react-google-maps`
 
+`npm install @material-ui/core` (Agregar a futuro)
+`npm install @material-ui/icons`
+
 ### Firebase + react
 
 https://www.freecodecamp.org/news/react-and-firebase-are-all-you-need-to-host-your-web-apps-f7ab55919f53/

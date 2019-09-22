@@ -24,19 +24,18 @@ const responsive = {
 const CarouselCard = props => {
     return <Carousel swipeable={true}
         draggable={false}
-        showDots={true}
+        showDots={props.showDots}
         responsive={responsive}
         ssr={true} // means to render carousel on server-side.
         infinite={false}
         autoPlay={false}
-        autoPlaySpeed={10}
+        autoPlaySpeed={5000}
         keyBoardControl={true}
-        customTransition="all .5"
         transitionDuration={50}
         containerClass="carousel-container"
         removeArrowOnDeviceType={["tablet", "mobile"]}
         dotListClass="custom-dot-list-style"
-        itemClass="carousel-item-padding-40-px"
+        className="pb-3"
     >
         {props.children}
     </Carousel>;

@@ -4,9 +4,9 @@ import Link from 'next/link';
 import '../style/timeline-style.css'
 
 const Footer = (props) => (
-    <footer className="bg-dark py-4" style={{msFlex: "0 0 auto", flex: "0 0 auto"}}>
-        <div className="row col-md-2 col-sm-4 col-2 col-xs-6 ml-md-5 ml-sm-2 ml-1">
-            <div className="col-6">
+    <footer className="bg-dark pt-4" style={{msFlex: "0 0 auto", flex: "0 0 auto"}}>
+        <div className="row col-md-2 col-sm-4 col-2 ml-md-5 ml-sm-2 ml-1 pl-0">
+            <div className="col-6 p-0">
                 <div className="w-100 pt-0">
                     <Link href="/">
                         <a className="text-light" style={{fontSize: "12px"}}>
@@ -36,7 +36,7 @@ const Footer = (props) => (
                     </Link>
                 </div>
             </div>
-            <div className="col-6">
+            <div className="col-6 p-0">
                 <div className="w-100 pt-0">
                     <Link href="/proveedores">
                         <a className="text-light" style={{fontSize: "12px"}}>
@@ -60,6 +60,9 @@ const Footer = (props) => (
                 </div>
             </div>
         </div>
+        <div className="row ml-md-5 ml-sm-2 ml-1 pt-2">
+            <p  style={{fontSize: "12px"}}>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"             title="Flaticon">www.flaticon.com</a></p>
+        </div>
 
         {/*<!-- The core Firebase JS SDK is always required and must be listed first -->*/}
         <script src="https://www.gstatic.com/firebasejs/6.6.2/firebase-app.js"></script>
@@ -69,7 +72,8 @@ const Footer = (props) => (
 
         {/*<!-- Initialize Firebase -->*/}
 
-
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" /> {/*Icon component*/}
     </footer>
 );
 

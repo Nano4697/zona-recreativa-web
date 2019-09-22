@@ -8,6 +8,7 @@ import Layout from '../components/GeneralLayout';
 import Navigation from '../components/Navigation';
 import Timeline from '../components/Timeline'
 import Footer from '../components/Footer'
+import Album from '../components/Album'
 
 //Others
 import data from '../data/infoPackage.json';
@@ -31,9 +32,9 @@ const Post = props => {
                             { props.info.description }
                         </p>
                         <h3 className="row mb-3 mt-sm-auto mt-3 ">
-                            Mapa
+                            Fotos
                         </h3>
-                        <img src={require('../resources' + props.info.map)} className="col-md-12 col-11 p-0"/>
+                        <Album />
                     </div>
                     <div className="col-md-5 col-sm-11 col-11 pl-sm-4 pl-0 mt-3">
                         <h3 className="mb-3">
