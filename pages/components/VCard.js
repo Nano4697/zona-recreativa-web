@@ -12,7 +12,7 @@ function cutMsg(msg) {
 
 const VCard = (props) => (
     <div className="card mb-3 border-0 col-lg-11 col-12 mx-auto" style={{height: "300px"}} >
-        <div className="row" style={{height: "50%"}}>
+        <div className="row justify-content-center" style={{height: "50%"}}>
             <div className="" style={{height: "100%"}}>
                 <Link href="/pPackage/[infoPkg]" as={`/pPackage/${props.uid}`}>
                     <img src={props !== 'undefined' && props.img !== 'undefined' && require(`../resources/${props.img}`)}

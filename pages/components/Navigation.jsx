@@ -15,34 +15,6 @@ class Navigation extends Component {
             <Navbar.Collapse className="justify-content-between" id="responsive-navbar-nav">
                 {/*
 
-                Primera seccion de la barra de navegacion. Incluye Catalogo, Galeria e Informacion
-
-                 */
-                }
-                <Nav className="pl-xl-5 pl-lg-4 pl-md-2 pl-sm-3 pl-4 col-xs-2">
-                    <Link href="/">
-                        <a className="nav-link px-lg-4 px-xl-4 px-sm-0 mx-md-2 d-sm-none text-light font-weight-bold">
-                            Inicio
-                        </a>
-                    </Link>
-                    <Link href="/catalogo">
-                        <a className="nav-link px-lg-4 px-xl-4 px-sm-2 mx-md-2 text-light font-weight-bold">
-                            Catálogo
-                        </a>
-                    </Link>
-                    <Link href="/galeria">
-                        <a className="nav-link px-lg-4 px-xl-4 px-sm-2 mx-md-2 text-light font-weight-bold">
-                            Galería
-                        </a>
-                    </Link>
-                    <Link href="/informacion">
-                        <a className="nav-link px-lg-4 px-xl-4 px-sm-2 mx-md-2 text-light font-weight-bold">
-                            Información
-                        </a>
-                    </Link>
-                </Nav>
-                {/*
-
                 Logotipo que va en el centro
 
                  */
@@ -54,28 +26,48 @@ class Navigation extends Component {
                 </Navbar.Brand>
                 {/*
 
-                Segunda seccion de la barra de navegacion. Incluye Proveedores, Contacto y Acerca de
+                Primera seccion de la barra de navegacion. Incluye Catalogo, Galeria e Informacion
 
                  */
                 }
-                <Nav className="pr-xl-5 pr-lg-4 pr-md-2 pr-sm-3 pl-4 col-xs-2">
+                <Nav className="pl-xl-5 pl-lg-4 pl-md-2 pl-sm-3 pl-4 col-xs-2">
+                    <Link href="/">
+                        <a className="nav-link px-xl-3 px-lg-2 px-sm-0 mx-md-2 d-sm-none text-light font-weight-bold">
+                            Inicio
+                        </a>
+                    </Link>
+                    <Link href="/catalogo">
+                        <a className="nav-link px-xl-3 px-lg-2 px-sm-2 mx-md-2 text-light font-weight-bold">
+                            Catálogo
+                        </a>
+                    </Link>
+                    <Link href="/galeria">
+                        <a className="nav-link px-xl-3 px-lg-2 px-sm-2 mx-md-2 text-light font-weight-bold">
+                            Galería
+                        </a>
+                    </Link>
+                    <Link href="/informacion">
+                        <a className="nav-link px-xl-3 px-lg-2 px-sm-2 mx-md-2 text-light font-weight-bold">
+                            Información
+                        </a>
+                    </Link>
                     <Link href="/proveedores">
-                        <a className="nav-link px-lg-4 px-xl-2 px-sm-2 mx-md-2 text-light font-weight-bold">
+                        <a className="nav-link px-xl-3 px-lg-2 px-md-2 mx-sm-2 text-light font-weight-bold">
                             Proveedores
                         </a>
                     </Link>
                     <Link href="/contact">
-                        <a className="nav-link px-lg-4 px-xl-2 px-sm-2 mx-md-2 text-light font-weight-bold">
+                        <a className="nav-link px-xl-3 px-lg-2 px-md-2 mx-sm-2 text-light font-weight-bold">
                             Contacto
                         </a>
                     </Link>
                     <Link href="/about">
-                        <a className="nav-link px-lg-4 px-xl-2 px-sm-2 mx-md-2 text-light font-weight-bold">
+                        <a className="nav-link px-xl-3 px-lg-2 px-md-2 mx-sm-2 text-light font-weight-bold">
                             Acerca de
                         </a>
                     </Link>
                     <Link href="/">
-                        <a className="nav-link px-lg-4 px-xl-2 px-sm-2 mx-md-2 text-light font-weight-bold">
+                        <a className="nav-link px-xl-3 px-lg-2 px-md-2 mx-sm-2 text-light font-weight-bold">
                             Admin
                         </a>
                     </Link>
