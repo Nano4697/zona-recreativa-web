@@ -17,15 +17,15 @@ function cutMsg(msg) {
 }
 
 const Package = (props) => (
-    <div className="card mb-3 col-lg-10 col-12 mx-auto" >
+    <div className="card mb-3 col-lg-12" >
         <div className="row no-gutters" >
-            <div className="m-2 my-md-auto mx-auto mb-3 col-md-3 col-7">
+            <div className="m-2 my-md-auto mx-auto mb-3 col-md-4 col-12">
                 <Link href="/pPackage/[infoPkg]" as={`/pPackage/${props.uid}`}>
-                    <img src={props !== 'undefined' && props.img !== 'undefined' && require(`../resources/${props.img}`)} className="card-img p-2 border border-secondary" alt="..." style={ {cursor:'pointer' }} />
+                    <img src={props !== 'undefined' && props.img !== 'undefined' && require(`../resources/${props.img}`)} className="card-img border border-secondary" alt="..." style={ {cursor:'pointer' }} />
                 </Link>
             </div>
-            <div className="col-md-8 col-10">
-                <div className="card-body p-3">
+            <div className="col-md-8 col-12">
+                <div className="card-body p-md-3 p-0">
                     <h5 className="card-title">
                         {props.title}
                     </h5>

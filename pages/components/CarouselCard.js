@@ -24,11 +24,11 @@ const responsive = {
 const CarouselCard = props => {
     return <Carousel swipeable={true}
         draggable={false}
-        showDots={props.showDots}
+        showDots={props.showDots == "undefined" ? false : props.showDots}
         responsive={responsive}
         ssr={true} // means to render carousel on server-side.
-        infinite={false}
-        autoPlay={false}
+        infinite={props.infinite}
+        autoPlay={props.autoPlay}
         autoPlaySpeed={5000}
         keyBoardControl={true}
         transitionDuration={50}

@@ -31,7 +31,7 @@ const Index = props => (
                 Los viajes más solicitados por nuestros clientes:
             </p>
             <div className="px-5">
-                <CarouselCard showDots={true}>
+                <CarouselCard showDots={true} autoPlay={true} infinite={true}>
                     {multPrint()}
                 </CarouselCard>
             </div>

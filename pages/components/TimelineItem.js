@@ -46,7 +46,7 @@ const TimelineItem = ({ data }) => (
                     typeof data.text !== 'undefined' &&
                     data.text }
             </p>
-            <span className="circle" />
+            <span className="circle bg-primary" />
         </div>
     </div>
 );
