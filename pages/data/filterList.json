@@ -1,0 +1,28 @@
+[
+    {
+        "id": "tipo",
+        "name": "Tipo de viaje",
+        "criteria": [
+            {
+                "id": "tipoCientifico",
+                "name": "Cientifico",
+                "value": false
+            },
+            {
+                "id": "tipoCultural",
+                "name": "Cultural",
+                "value": false
+            },
+            {
+                "id": "tipoEducativo",
+                "name": "Educativo",
+                "value": false
+            },
+            {
+                "id": "tipoRecreativo",
+                "name": "Recreativo",
+                "value": false
+            }
+        ]
+    }
+]

@@ -3,36 +3,42 @@
         "id": "pkg1",
         "name": "Package 1",
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim. Nulla libero ante, vestibulum non erat in, facilisis volutpat ligula.",
+        "tipo": "Cultural",
         "img": "a.jpg"
     },
     {
         "id": "pkg2",
         "name": "Package 2",
         "description": "Nulla libero ante, vestibulum non erat in, facilisis volutpat ligula.",
+        "tipo": "Recreativo",
         "img": "b.jpg"
     },
     {
         "id": "pkg3",
         "name": "Quisque eu rhoncus libero. Integer nibh ante asfsadfasdfasdfasdfadfasdf",
         "description": "Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.",
+        "tipo": "Cultural",
         "img": "c.jpg"
     },
     {
         "id": "pkg4",
         "name": "Package 4",
         "description": "Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.",
+        "tipo": "Cientifico",
         "img": "c.jpg"
     },
     {
         "id": "pkg5",
         "name": "Package 5",
         "description": "Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.",
+        "tipo": "Cultural",
         "img": "c.jpg"
     },
     {
         "id": "pkg6",
         "name": "Package 6",
         "description": "Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.",
+        "tipo": "Recreativo",
         "img": "c.jpg"
     }
 ]
