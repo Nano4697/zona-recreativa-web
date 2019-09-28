@@ -5,10 +5,25 @@ import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Package from './components/Package';
 
+// Firebase App (the core Firebase SDK) is always required and must be listed first
+import * as firebase from "firebase/app";
+
+// // Add the Firebase products that you want to use
+import "firebase/auth";
+import "firebase/firestore";
 
 import data from './data/packages.json';
 import criteria from './data/filterList.json';
 
+const firebaseConfig = {
+  apiKey: "AIzaSyCX8-lZo1LksguFjXp1aucpwn34QV33HUw",
+  authDomain: "zona-recreativa-cr.firebaseapp.com",
+  databaseURL: "https://zona-recreativa-cr.firebaseio.com",
+  projectId: "zona-recreativa-cr",
+  storageBucket: "zona-recreativa-cr.appspot.com",
+  messagingSenderId: "311140447739",
+  appId: "1:311140447739:web:1e629544dd2c8dff08875e"
+};
 
 class Catalogo extends Component {
     constructor(props)
@@ -16,31 +31,50 @@ class Catalogo extends Component {
         super(props);
 
         this.state = {
-            originalList: data,
+            originalList: [],
             displayList: [],
             criteria: criteria
         };
 
+        // Initialize firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        var db = firebase.firestore();
+
+        db.collection("Paquetes").get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                if (doc.exists) {
+                    this.state.originalList.push(doc.data());
+                }
+            });
+
+            this.forceUpdate()
+        });
+
         this.state.displayList = this.state.originalList;
 
+        console.log(this.state.displayList)
+        console.log(data)
         this.fillCatalog = this.fillCatalog.bind(this);
         this.fillFilter = this.fillFilter.bind(this);
         this.filterPackages = this.filterPackages.bind(this);
         this.handleFilterInputChange = this.handleFilterInputChange.bind(this);
     }
-
+    
     fillCatalog (data)
     {
         if (typeof data == "undefined")
         {
             return this.state.displayList.map(item => (
-            <Package key={item.id} uid={item.id} title={item.name} msg={item.description} img={item.img} />
+                <Package key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
             ));
         }
         else
         {
             return data.map(item => (
-            <Package key={item.id} uid={item.id} title={item.name} msg={item.description} img={item.img} />
+            <Package key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
             ));
         }
     }

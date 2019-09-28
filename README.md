@@ -28,6 +28,8 @@ Also you'll need the following packages:
 
 `npm install --save next-fonts`
 
+`npm install firebase@6.3.4 --save`
+
 ## About
 
 Timeline based on a tutorial blog made by Florian Pop
