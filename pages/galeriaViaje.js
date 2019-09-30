@@ -66,16 +66,8 @@ class Galeria extends Component
                         </h1>
                     </div>
                     <div className="row justify-content-center">
-                        <div className="mt-5">
-                            <h3 className="mb-4">Ingrese el código de viaje:</h3>
-                            <form className="" onSubmit={this.handleSubmit}>
-                                <Form.Control name="name" type="text" placeholder="Código" value={this.state.name} onChange={this.handleInputChange}/>
-                                <div className="mt-3" align="center">
-                                    <Link href="/galeriaViaje">
-                                        <button type="button" className="btn btn-dark">Enviar</button>
-                                    </Link>
-                                </div>
-                            </form>
+                        <div className="mt-5 col-10" align="center">
+                            <Album />
                         </div>
                     </div>
                 </Layout>

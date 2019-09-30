@@ -2,6 +2,7 @@
 import { useRouter } from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import Error from 'next/error'
+import Carousel from 'react-bootstrap/Carousel'
 
 //components
 import Layout from '../components/GeneralLayout';
@@ -12,6 +13,20 @@ import Album from '../components/Album'
 
 //Others
 import data from '../data/infoPackage.json';
+import imgs from '../data/packageImg.json'
+
+function fillCarousel()
+{
+    return imgs.map(item => (
+        <Carousel.Item key={item.id}>
+            <img className="d-block w-100" src={require(`../resources/${item.img}`)}/>
+            <Carousel.Caption style={{width: "100%", left: "0px", background: "rgba(0,0,0,0.5)"}}>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+            </Carousel.Caption>
+        </Carousel.Item>
+    ));
+}
 
 
 const Post = props => {
@@ -34,7 +49,18 @@ const Post = props => {
                         <h3 className="row mb-3 mt-sm-auto mt-3 ">
                             Fotos
                         </h3>
-                        <Album />
+                        <Carousel className="row mb-3 mt-sm-auto mt-3 ">
+                            {fillCarousel()}
+                        </Carousel>
+                        <h3 className="row mb-3">
+                            Alimentación
+                        </h3>
+                        <div className="" align="center">
+                            <img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fbreakfast.svg?alt=media&token=11a937c9-76f4-4917-b389-d071c8129957" className="col-2" title="El desayuno puede ser: Emparedado, Frutas, Torta de huevo"/>
+                            <img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fburger.svg?alt=media&token=1c9f65f2-f922-4fee-986e-a1213b32c6fe" className="col-2" title="El aalmuerzo puede ser: Emparedado, Burrito, Perro caliente"/>
+                            <img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fcoffee-cup.svg?alt=media&token=17581205-d8c9-4dea-8db6-9cee84f98c46" className="col-2" title="La merienda puede ser: Emparedado, Frutas, Galletas"/>
+                            <p className="mt-2" style={{fontSize: "14px"}}>Nota: La opciones de alimentación pueden variar</p>
+                        </div>
                     </div>
                     <div className="col-md-5 col-sm-11 col-11 pl-sm-4 pl-0 mt-3">
                         <h3 className="mb-3">

@@ -33,7 +33,7 @@ const Package = (props) => (
                         {cutMsg(props.msg)}
                     </p>
                     <Link href="/pPackage/[infoPkg]" as={`/pPackage/${props.uid}`}>
-                        <Button onClick={() => sayHello(props.uid)} className="btn-sm float-right mb-3" variant="dark">
+                        <Button className="btn-sm float-right mb-3" variant="dark" style={{background: "#f36421", color: "#000"}}>
                             Ver más
                         </Button>
                     </Link>

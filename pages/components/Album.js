@@ -90,43 +90,43 @@ class Album extends React.Component {
 Album.defaultProps = {
     images: [
         {
-            src: require("../resources/logo.png"),
-            thumbnail: require("../resources/logo.png"),
+            src: require("../resources/a.jpg"),
+            thumbnail: require("../resources/a.jpg"),
             thumbnailWidth: "10%",
             thumbnailHeight: "10%",
             caption: "After Rain (Jeshu John - designerspics.com)"
         },
         {
-            src: require("../resources/logo.png"),
-            thumbnail: require("../resources/logo.png"),
+            src: require("../resources/d.jpg"),
+            thumbnail: require("../resources/d.jpg"),
             thumbnailWidth: "10%",
             thumbnailHeight: "10%",
             caption: "After Rain (Jeshu John - designerspics.com)"
         },
         {
-            src: require("../resources/logo.png"),
-            thumbnail: require("../resources/logo.png"),
+            src: require("../resources/c.jpg"),
+            thumbnail: require("../resources/c.jpg"),
             thumbnailWidth: "10%",
             thumbnailHeight: "10%",
             caption: "After Rain (Jeshu John - designerspics.com)"
         },
         {
-            src: require("../resources/logo.png"),
-            thumbnail: require("../resources/logo.png"),
+            src: require("../resources/b.jpg"),
+            thumbnail: require("../resources/b.jpg"),
             thumbnailWidth: "10%",
             thumbnailHeight: "10%",
             caption: "After Rain (Jeshu John - designerspics.com)"
         },
         {
-            src: require("../resources/logo.png"),
-            thumbnail: require("../resources/logo.png"),
+            src: require("../resources/e.jpg"),
+            thumbnail: require("../resources/e.jpg"),
             thumbnailWidth: "10%",
             thumbnailHeight: "10%",
             caption: "After Rain (Jeshu John - designerspics.com)"
         },
         {
-            src: require("../resources/logo.png"),
-            thumbnail: require("../resources/logo.png"),
+            src: require("../resources/f.jpg"),
+            thumbnail: require("../resources/f.jpg"),
             thumbnailWidth: "10%",
             thumbnailHeight: "10%",
             caption: "After Rain (Jeshu John - designerspics.com)"

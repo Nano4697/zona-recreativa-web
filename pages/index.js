@@ -73,6 +73,21 @@ class Index extends Component
         return (
             <div>
                 <Navigation/>
+                <div className="position-relative">
+                    <img src={require('./resources/home.jpg')} style={{width: "100%"}} alt=''/>
+                    <span className="col-4 position-absolute" style={{background: "rgba(0,0,0,0.5)", height: "100%", right: "0px"}}>
+                        {/*Modificar para versiones moviles*/}
+                        <div className="col-9" style={{color: "#fff", top: "15%"}}>
+                            <h2>Lorem Ipsum dolor sit amet, consectetur adipiscing elit</h2>
+                            <p className="mt-4" style={{fontSize: "18px"}}>Quisque eu rhoncus libero. Integer nibh ante, semper non lacus id, bibendum laoreet enim.</p>
+                            <Link href='/catalogo'>
+                                <button className="border position-relative" style={{background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: "20px", top: "120px", left: "200px"}}>
+                                    Ver más →
+                                </button>
+                            </Link>
+                        </div>
+                    </span>
+                </div>
                 <Layout>
                     <h4 className="ml-3">
                         Más populares
