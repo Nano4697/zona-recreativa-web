@@ -6,6 +6,8 @@ import Layout from './components/GeneralLayout';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Package from './components/Package';
+import Link from 'next/link';
+import Button from 'react-bootstrap/Button';
 
 //Other --------------------------------------------------------------------------------------------------------
 
@@ -125,13 +127,19 @@ class Catalogo extends Component {
         if (typeof data == "undefined")
         {
             return this.state.displayList.map(item => (
-                <Package key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+                <div>
+                    <Package key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+                    <hr/>
+                </div>
             ));
         }
         else
         {
             return data.map(item => (
-            <Package key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+                <div>
+                    <Package key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+                    <hr/>
+                </div>
             ));
         }
     }
@@ -244,6 +252,23 @@ class Catalogo extends Component {
                     </div>
                     <div className="col-md-9 col-12 pl-md-2 px-0">
                         {this.fillCatalog()}
+                    </div>
+                </div>
+                <div className="row justify-content-center">
+                    <div>
+                        <h4 className="mt-2 mb-4 text-center">
+                            ¿No encuentras lo que buscas?
+                        </h4>
+                        <p>
+                            Contacta con nosotros para explorar otras opciones:
+                        </p>
+                        <div className="row justify-content-center">
+                            <Link href="/contact">
+                                <Button className="btn-lg mb-3" variant="dark">
+                                    Contactar
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
                 </Layout>

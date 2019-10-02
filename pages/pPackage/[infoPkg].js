@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import fetch from 'isomorphic-unfetch';
 import Error from 'next/error'
 import Carousel from 'react-bootstrap/Carousel'
+import Button from 'react-bootstrap/Button';
+import Link from 'next/link';
 
 //components
 import Layout from '../components/GeneralLayout';
@@ -67,6 +69,33 @@ const Post = props => {
                             Itinerario
                         </h3>
                         <Timeline info={props.info.schedule}/>
+                    </div>
+                </div>
+                <div className="row justify-content-center">
+                    <div>
+                        <h4 className="mt-2 mb-4 text-center">
+                            ¿Te interesa?
+                        </h4>
+                        <p>
+                            Contacta con nosotros para reservar este reqcorrido:
+                        </p>
+                        <div className="row justify-content-center">
+                            <Link href="/contact">
+                                <Button className="btn-lg mb-3" variant="dark" style={{background: "#f5616f", color: "black"}}>
+                                    Reservar
+                                </Button>
+                            </Link>
+                        </div>
+                        <p>
+                            O bien, contacta con nosotros para solicitar más información:
+                        </p>
+                        <div className="row justify-content-center">
+                            <Link href="/contact">
+                                <Button className="btn-lg mb-3" style={{background: "#00aeef", color: "black"}}>
+                                    Más información
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
