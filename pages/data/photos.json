@@ -6,49 +6,49 @@
             {
                 "src": "https://images.freeimages.com/images/large-previews/468/winter-wonderland-1383617.jpg",
                 "thumbnail": "https://images.freeimages.com/images/large-previews/468/winter-wonderland-1383617.jpg",
-                "thumbnailWidth": 320,
+                "thumbnailWidth": "50%",
                 "thumbnailHeight": 100
             },
             {
                 "src": "https://images.freeimages.com/images/small-previews/256/spring-1376144.jpg",
                 "thumbnail": "https://images.freeimages.com/images/small-previews/256/spring-1376144.jpg",
-                "thumbnailWidth": 320,
+                "thumbnailWidth": "50%",
                 "thumbnailHeight": 100
             },
             {
                 "src": "https://images.freeimages.com/images/large-previews/ac0/cat-1364386.jpg",
                 "thumbnail": "https://images.freeimages.com/images/large-previews/ac0/cat-1364386.jpg",
-                "thumbnailWidth": 320,
+                "thumbnailWidth": "50%",
                 "thumbnailHeight": 100
             },
             {
                 "src": "https://cdn.pixabay.com/photo/2019/02/08/15/33/journey-3983404_960_720.jpg",
                 "thumbnail": "https://cdn.pixabay.com/photo/2019/02/08/15/33/journey-3983404_960_720.jpg",
-                "thumbnailWidth": 600,
+                "thumbnailWidth": "50%",
                 "thumbnailHeight": 600
             },
             {
                 "src": "https://images.freeimages.com/images/large-previews/1f8/delicate-arch-1-1391746.jpg",
                 "thumbnail": "https://images.freeimages.com/images/large-previews/1f8/delicate-arch-1-1391746.jpg",
-                "thumbnailWidth": 320,
+                "thumbnailWidth": "50%",
                 "thumbnailHeight": 100
             },
             {
                 "src": "https://images.freeimages.com/images/large-previews/a3c/maia-2-1436576.jpg",
                 "thumbnail": "https://images.freeimages.com/images/large-previews/a3c/maia-2-1436576.jpg",
-                "thumbnailWidth": 320,
+                "thumbnailWidth": "50%",
                 "thumbnailHeight": 100
             },
             {
                 "src": "https://images.freeimages.com/images/large-previews/f13/factory-1446641.jpg",
                 "thumbnail": "https://images.freeimages.com/images/large-previews/f13/factory-1446641.jpg",
-                "thumbnailWidth": 320,
+                "thumbnailWidth": "50%",
                 "thumbnailHeight": 100
             },
             {
                 "src": "https://cdn.pixabay.com/photo/2019/06/24/16/43/teraladina-4296464_960_720.jpg",
                 "thumbnail": "https://cdn.pixabay.com/photo/2019/06/24/16/43/teraladina-4296464_960_720.jpg",
-                "thumbnailWidth": 220,
+                "thumbnailWidth": "50%",
                 "thumbnailHeight": 100
             }
         ]

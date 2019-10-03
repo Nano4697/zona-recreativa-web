@@ -1,12 +1,15 @@
-import Layout from '../components/GeneralLayout';
-import Navigation from '../components/Navigation';
-import { useRouter } from 'next/router';
+// Packages
+import Router from 'next/router'
 import fetch from 'isomorphic-unfetch';
 import Error from 'next/error'
 
-import data from '../data/photos.json';
-
+// Components
+import Layout from '../components/GeneralLayout';
+import Navigation from '../components/Navigation';
 import Album from '../components/Album'
+
+// Others
+import data from '../data/photos.json';
 
 const album = props => {
     if (props.errorCode) {

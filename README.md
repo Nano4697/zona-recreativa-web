@@ -30,6 +30,8 @@ Also you'll need the following packages:
 
 `npm install firebase@6.3.4 --save`
 
+`npm i image-watermark`
+
 ## About
 
 Timeline based on a tutorial blog made by Florian Pop

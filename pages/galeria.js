@@ -1,14 +1,17 @@
+// Packages
+import React, { Component } from 'react';
+import Link from 'next/link';
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+
+// Components
 import Layout from './components/GeneralLayout';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Album from './components/Album';
-import Link from 'next/link';
 
-import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
-
+// Others
 import data from './data/viajes.json';
-import React, { Component } from 'react';
 
 class Galeria extends Component
 {
@@ -69,9 +72,9 @@ class Galeria extends Component
                         <div className="mt-5">
                             <h3 className="mb-4">Ingrese el código de viaje:</h3>
                             <form className="" onSubmit={this.handleSubmit}>
-                                <Form.Control name="name" type="text" placeholder="Código" value={this.state.name} onChange={this.handleInputChange}/>
+                                <Form.Control name="code" type="text" placeholder="Código" value={this.state.code} onChange={this.handleInputChange}/>
                                 <div className="mt-3" align="center">
-                                    <Link href="/galeriaViaje">
+                                    <Link href="/pAlbum/[album]" as={`/pAlbum/${this.state.code}`}>
                                         <button type="button" className="btn btn-dark">Enviar</button>
                                     </Link>
                                 </div>

@@ -88,6 +88,11 @@ const Footer = (props) => (
 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" /> {/*Icon component*/}
+
+        {/*<!-- jQuery 1.5+ -->*/}
+        <script src="jquery.js" type="text/javascript"></script>
+        {/*<!-- jQuery plugin Watermark -->*/}
+        <script src="jquery.watermark.js" type="text/javascript"></script>
     </footer>
 );
 

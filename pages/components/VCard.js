@@ -15,7 +15,7 @@ const VCard = (props) => (
         <div className="row justify-content-center" style={{height: "50%"}}>
             <div className="" style={{height: "100%"}}>
                 <Link href="/pPackage/[infoPkg]" as={`/pPackage/${props.uid}`}>
-                    <img src={props !== 'undefined' && props.img !== 'undefined' && require(`../resources/${props.img}`)}
+                    <img src={props !== 'undefined' && props.img !== 'undefined' && props.img}
                     className="card-img border my-auto border-secondary" alt="..." style={ {cursor:'pointer', height: "90%" }} />
                 </Link>
             </div>
