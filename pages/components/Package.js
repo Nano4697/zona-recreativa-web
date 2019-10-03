@@ -17,7 +17,7 @@ function cutMsg(msg) {
 }
 
 const Package = (props) => (
-    <div className="card mb-3 col-lg-12" >
+    <div className="card mb-3 col-lg-12 border-0" >
         <div className="row no-gutters" >
             <div className="m-2 my-md-auto mx-auto mb-3 col-md-4 col-12">
                 <Link href="/pPackage/[infoPkg]" as={`/pPackage/${props.uid}`}>

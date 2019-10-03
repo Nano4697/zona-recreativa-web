@@ -66,7 +66,7 @@ class Navigation extends Component {
                             Acerca de
                         </a>
                     </Link>
-                    <Link href="/">
+                    <Link href="/AdminLogin">
                         <a className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
                             Admin
                         </a>
