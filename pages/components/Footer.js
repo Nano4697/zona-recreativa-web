@@ -16,8 +16,11 @@ const firebaseConfig = {
 const Footer = (props) => (
     <footer className="bg-dark pt-4" style={{msFlex: "0 0 auto", flex: "0 0 auto"}}>
         <div className="container col-12">
-            <div className="row col-md-2 col-sm-4 col-2 ml-md-5 ml-sm-2 ml-1 pl-0">
-                <div className="col-6 p-0">
+            <div className="row col-md-6 col-sm-4 col-2 ml-md-5 ml-sm-2 ml-1 pl-0">
+                <div className="col-lg-4 col-md-8 col-4">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Flogo-2.png?alt=media&token=5af0e6da-07e4-490e-8d61-bebc7b456ce3"  style={{cursor:'pointer', height: "70px" }}/>
+                </div>
+                <div className="col-lg-2 col-md-2 col-12 p-0">
                     <div className="w-100 pt-0">
                         <Link href="/">
                             <a className="text-light" style={{fontSize: "12px"}}>
@@ -47,7 +50,7 @@ const Footer = (props) => (
                         </Link>
                     </div>
                 </div>
-                <div className="col-6 p-0">
+                <div className="col-lg-2 col-md-2 col-12 p-0">
                     <div className="w-100 pt-0">
                         <Link href="/proveedores">
                             <a className="text-light" style={{fontSize: "12px"}}>
@@ -89,10 +92,10 @@ const Footer = (props) => (
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" /> {/*Icon component*/}
 
-        {/*<!-- jQuery 1.5+ -->*/}
-        <script src="jquery.js" type="text/javascript"></script>
-        {/*<!-- jQuery plugin Watermark -->*/}
-        <script src="jquery.watermark.js" type="text/javascript"></script>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossOrigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossOrigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossOrigin="anonymous"></script>
     </footer>
 );
 

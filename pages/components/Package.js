@@ -21,7 +21,7 @@ const Package = (props) => (
         <div className="row no-gutters" >
             <div className="m-2 my-md-auto mx-auto mb-3 col-md-4 col-12">
                 <Link href="/pPackage/[infoPkg]" as={`/pPackage/${props.uid}`}>
-                    <img src={props !== 'undefined' && props.img !== 'undefined' && require(`../resources/${props.img}`)} className="card-img border border-secondary" alt="..." style={ {cursor:'pointer' }} />
+                    <img src={props !== 'undefined' && props.img !== 'undefined' && props.img} className="card-img border border-secondary" alt="..." style={ {cursor:'pointer' }} />
                 </Link>
             </div>
             <div className="col-md-8 col-12">

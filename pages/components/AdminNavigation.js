@@ -1,74 +1,78 @@
-// npm install react-bootstrap bootstrap
-
 import React, {Component} from 'react'
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import Image from 'react-bootstrap/Image'
 import Badge from 'react-bootstrap/Badge'
 import Link from 'next/link';
+import Router from 'next/router'
 import '../style/fullPage.css'
 
-class Navigation extends Component {
+class AdminNavigation extends Component {
+
+    constructor ()
+    {
+        super();
+
+        //Se necesita hacer bind a todas la funciones que se usen dentro de la clase.
+        this.endSession = this.endSession.bind(this);
+    }
+
+    endSession()
+    {
+        Router.push('/');
+    }
+
     render() {
         return (<Navbar className="sticky-top " collapseOnSelect="collapseOnSelect" expand="md" style={{background: "#f5616f"}} /* bg="light" variant="light"*/>
             <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
             <Navbar.Collapse className="justify-content-between" id="responsive-navbar-nav">
                 {/*
-
                 Logotipo que va en el centro
-
                  */
                 }
                 <Navbar.Brand className="d-none d-md-block col-xl-1 col-lg-1 col-2 ml-lg-5 ml-0 mr-0 px-0">
-                    <Link href="/">
+                    <Link href="/adminMain">
                         <Image className="" src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Flogo-2.png?alt=media&token=5af0e6da-07e4-490e-8d61-bebc7b456ce3"  style={{cursor:'pointer', height: "40px" }} fluid/>
                     </Link>
                 </Navbar.Brand>
                 {/*
-
                 Primera seccion de la barra de navegacion. Incluye Catalogo, Galeria e Informacion
-
                  */
                 }
-                <Nav className="pl-xl-5 pl-lg-4 pl-md-0 pl-4 col-xl-8 col-lg-9 col-10 pr-0">
-                    <Link href="/">
+                <Nav className="pl-xl-5 pl-lg-4 pl-md-0 pl-4 col-xl-9 col-lg-9 col-10 pr-0">
+                    <Link href="/adminMain">
                         <a className="nav-link px-xl-3 px-lg-2 px-sm-0 mx-md-2 d-sm-none text-light font-weight-bold">
                             Inicio
                         </a>
                     </Link>
-                    <Link href="/catalogo">
+                    <Link href="/adminPackages">
                         <a className="nav-link px-xl-3 px-lg-2 pl-md-0 pr-md-0 ml-md-0 mr-md-2 text-light font-weight-bold">
-                            Catálogo
+                            Paquetes
                         </a>
                     </Link>
-                    <Link href="/galeria">
+                    <Link href="/adminSeguros">
                         <a className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
-                            Galería
+                            Seguros laborales
                         </a>
                     </Link>
-                    <Link href="/informacion">
+                    <Link href="/adminPlanesA">
                         <a className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
-                            Información
+                            Planes alimenticios
                         </a>
                     </Link>
-                    <Link href="/proveedores">
+                    <Link href="/adminPersonalM">
                         <a className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
-                            Proveedores
+                            Personal médico
                         </a>
                     </Link>
-                    <Link href="/contact">
+                    <Link href="/adminTran">
                         <a className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
-                            Contacto
+                            Transporte
                         </a>
                     </Link>
-                    <Link href="/about">
-                        <a className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
-                            Acerca de
-                        </a>
-                    </Link>
-                    <Link href="/adminLogin">
-                        <a className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
-                            Admin
+                    <Link href="/">
+                        <a onClick={this.endSession} className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
+                            Cerrar sesión
                         </a>
                     </Link>
                 </Nav>
@@ -80,4 +84,4 @@ class Navigation extends Component {
     }
 }
 
-export default Navigation
+export default AdminNavigation;

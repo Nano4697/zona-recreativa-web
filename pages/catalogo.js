@@ -42,7 +42,7 @@ class Catalogo extends Component {
             criteria: props.criteria
         };
 
-        console.log(props.criteria)
+        // console.log(props.criteria)
 
         // turn filter on
         if (props.hasOwnProperty('tipo'))
@@ -127,8 +127,8 @@ class Catalogo extends Component {
         if (typeof data == "undefined")
         {
             return this.state.displayList.map(item => (
-                <div>
-                    <Package key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+                <div key={item.id}>
+                    <Package uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
                     <hr/>
                 </div>
             ));
@@ -136,8 +136,8 @@ class Catalogo extends Component {
         else
         {
             return data.map(item => (
-                <div>
-                    <Package key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+                <div key={item.id}>
+                    <Package uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
                     <hr/>
                 </div>
             ));
@@ -202,14 +202,14 @@ class Catalogo extends Component {
         displayList = displayList.filter(function(item)
         {
             var crit = this;
-            // console.log(crit)
+            // console.log(crit[0])
 
             for (var i = 0; i < crit.length; i++)
             {
                 for (var j = 0; j < crit[i].criteria.length; j++)
                 {
                     if (crit[i].criteria[j].value &&
-                        item[criteria[i].id].toLowerCase() == crit[i].criteria[j].name.toLowerCase())
+                        item[crit[i].id].toLowerCase() == crit[i].criteria[j].name.toLowerCase())
                     {
                         return true;
                     }
@@ -226,7 +226,7 @@ class Catalogo extends Component {
         {
             if (hasFilter)
             {
-                console.log("deberia retornar vacio")
+                // console.log("deberia retornar vacio")
                 return []
             }
             else
@@ -263,8 +263,8 @@ class Catalogo extends Component {
                             Contacta con nosotros para explorar otras opciones:
                         </p>
                         <div className="row justify-content-center">
-                            <Link href="/contact">
-                                <Button className="btn-lg mb-3" variant="dark">
+                            <Link href={{ pathname: '/contact', query: { template: "moreoptions" }}}>
+                                <Button className="btn-lg mb-3" style={{background: "#00aeef", color: "black"}}>
                                     Contactar
                                 </Button>
                             </Link>

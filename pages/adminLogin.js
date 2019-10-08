@@ -31,9 +31,11 @@ class AdminLogin extends Component
         //Poner aqui lo que tiene que hacer el form cuando se envia la informacion
         console.log(this.state)
 
+        if (this.state.username == 'admin' && this.state.password == 'admin')
+            Router.push('/adminMain')
+
         //Reincia los inputs
         this.setState({
-            username: '',
             password: ''
         });
     }
@@ -74,8 +76,8 @@ class AdminLogin extends Component
                                 <label htmlFor="password">Contraseña:</label>
                                 <input type="password" className="form-control mx-4" id="password" name="password" placeholder="Contraseña" value={this.state.password} onChange={this.handleInputChange}/>
                             </div>
-                            <div className="form-buttns" style={{textAlign: 'center'}}>
-                                <button className="btn btn-dark" type="button">Iniciar sesión</button>
+                            <div className="form-button" style={{textAlign: 'center'}}>
+                                <button className="btn btn-dark" type="submit">Iniciar sesión</button>
                             </div>
                         </form>
 

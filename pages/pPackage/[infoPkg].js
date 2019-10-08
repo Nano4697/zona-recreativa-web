@@ -76,21 +76,21 @@ const Post = props => {
                         <h4 className="mt-2 mb-4 text-center">
                             ¿Te interesa?
                         </h4>
-                        <p>
-                            Contacta con nosotros para reservar este reqcorrido:
+                        <p className="text-center">
+                            Contacta con nosotros para reservar este recorrido:
                         </p>
                         <div className="row justify-content-center">
-                            <Link href="/contact">
+                            <Link href={{ pathname: '/contact', query: { template: "bookit" }}}>
                                 <Button className="btn-lg mb-3" variant="dark" style={{background: "#f5616f", color: "black"}}>
                                     Reservar
                                 </Button>
                             </Link>
                         </div>
-                        <p>
+                        <p className="text-center">
                             O bien, contacta con nosotros para solicitar más información:
                         </p>
                         <div className="row justify-content-center">
-                            <Link href="/contact">
+                            <Link href={{ pathname: '/contact', query: { template: "moreInfo", pkgCode: props.info.id}}}>
                                 <Button className="btn-lg mb-3" style={{background: "#00aeef", color: "black"}}>
                                     Más información
                                 </Button>
