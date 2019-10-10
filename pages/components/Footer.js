@@ -6,11 +6,8 @@ import '../style/timeline-style.css'
 const Footer = (props) => (
     <footer className="bg-dark pt-4" style={{msFlex: "0 0 auto", flex: "0 0 auto"}}>
         <div className="container col-12">
-            <div className="row col-md-6 col-sm-4 col-2 ml-md-5 ml-sm-2 ml-1 pl-0">
-                <div className="col-lg-4 col-md-8 col-4">
-                    <img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Flogo-2.png?alt=media&token=5af0e6da-07e4-490e-8d61-bebc7b456ce3"  style={{cursor:'pointer', height: "70px" }}/>
-                </div>
-                <div className="col-lg-2 col-md-2 col-12 p-0">
+            <div className="row ml-md-5 ml-sm-2 ml-1 pl-0">
+                <div className="col-lg-1 col-md-2 col-12 p-0">
                     <div className="w-100 pt-0">
                         <Link href="/">
                             <a className="text-light" style={{fontSize: "12px"}}>
@@ -40,7 +37,7 @@ const Footer = (props) => (
                         </Link>
                     </div>
                 </div>
-                <div className="col-lg-2 col-md-2 col-12 p-0">
+                <div className="col-lg-1 col-md-2 col-12 p-0">
                     <div className="w-100 pt-0">
                         <Link href="/proveedores">
                             <a className="text-light" style={{fontSize: "12px"}}>
@@ -62,6 +59,9 @@ const Footer = (props) => (
                             </a>
                         </Link>
                     </div>
+                </div>
+                <div className="col-lg-4 col-md-8 col-4 float-right ml-auto mr-5 pr-5">
+                    <img className="float-right" src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Flogo-2.png?alt=media&token=5af0e6da-07e4-490e-8d61-bebc7b456ce3"  style={{cursor:'pointer', height: "70px" }}/>
                 </div>
             </div>
             <div className="row ml-md-5 ml-sm-2 ml-1 pt-2">

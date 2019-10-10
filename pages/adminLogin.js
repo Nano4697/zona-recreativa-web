@@ -4,14 +4,13 @@ import Router from 'next/router'
 import { Formik, Field } from 'formik';
 import React, { Component } from 'react';
 
-import firebase from './components/Firebase/firebase';
+import firebaseConfig from './firebase/firebase';
 
-// Firebase App (the core Firebase SDK) is always required and
-// must be listed before other Firebase SDKs
-// var firebase = require("firebase/app");
+// Firebase App (the core Firebase SDK) is always required and must be listed first
+import * as firebase from "firebase/app";
 
 // Add the Firebase products that you want to use
-require("firebase/auth");
+import "firebase/auth";
 
 class AdminLogin extends Component
 {
@@ -23,11 +22,38 @@ class AdminLogin extends Component
         this.state = {
             username: '',
             password: ''
-        };
+        };// Initialize firebase
+        if (!firebase.apps.length)
+            firebase.initializeApp(firebaseConfig);
+
+        
 
         //Se necesita hacer bind a todas la funciones que se usen dentro de la clase.
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    static async getInitialProps({query})
+    {
+        var username;
+        var uid;
+        var providerData;
+
+        firebase.auth().onAuthStateChanged(function(user)
+        {
+            if (user)
+            {
+                // User is signed in.
+                username = user.email;
+                uid = user.uid;
+                providerData = user.providerData;
+
+                Router.push('/adminMain')
+                // return {user: username, id: uid, provider: provider}
+            }
+        });
+
+        return {}
     }
 
     //Se activa cuando se presiona enviar
