@@ -26,3 +26,5 @@ yarn-error.log*
 .next
 /public
 /functions
+/out
+.firebase

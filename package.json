@@ -17,6 +17,7 @@
     "@material-ui/icons": "^4.4.3",
     "@zeit/next-css": "^1.0.1",
     "bootstrap": "^4.3.1",
+    "dotenv": "^8.1.0",
     "firebase": "^6.3.4",
     "formik": "^1.5.8",
     "google-map-react": "^1.1.4",
@@ -26,12 +27,12 @@
     "next": "^9.0.5",
     "next-fonts": "^0.18.0",
     "react": "^16.9.0",
-    "react-bootstrap": "^1.0.0-beta.12",
+    "react-bootstrap": "^1.0.0-beta.14",
     "react-dom": "^16.9.0",
     "react-google-maps": "^9.4.5",
     "react-grid-gallery": "^0.5.5",
     "react-markdown": "^4.1.0",
-    "react-multi-carousel": "^2.2.6",
+    "react-multi-carousel": "^2.2.10",
     "react-native-timeline": "^1.0.1",
     "react-timeline-scribble": "^1.0.14",
     "serverless-mysql": "^1.5.1",
@@ -40,10 +41,10 @@
     "watermarkjs": "^2.0.0"
   },
   "devDependencies": {
-    "@types/node": "^12.7.5",
-    "@types/react": "^16.9.2",
+    "@types/node": "^12.7.12",
+    "@types/react": "^16.9.5",
     "file-loader": "^4.2.0",
     "next-images": "^1.2.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.4"
   }
 }

@@ -20,17 +20,14 @@ Also you'll need the following packages:
 
 `npm install react-bootstrap bootstrap react-grid-gallery`
 
-`npm install --save next-images @zeit/next-css formik`
+`npm install --save next-images @zeit/next-css formik next-fonts`
 
 `npm install --save-dev typescript @types/react @types/node`
 
-`npm i react-multi-carousel`
-
-`npm install --save next-fonts`
+`npm i react-multi-carousel image-watermark`
 
 `npm install firebase@6.3.4 --save`
 
-`npm i image-watermark`
 
 ## About
 

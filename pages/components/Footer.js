@@ -3,16 +3,6 @@ import Button from 'react-bootstrap/Button';
 import Link from 'next/link';
 import '../style/timeline-style.css'
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCX8-lZo1LksguFjXp1aucpwn34QV33HUw",
-  authDomain: "zona-recreativa-cr.firebaseapp.com",
-  databaseURL: "https://zona-recreativa-cr.firebaseio.com",
-  projectId: "zona-recreativa-cr",
-  storageBucket: "zona-recreativa-cr.appspot.com",
-  messagingSenderId: "311140447739",
-  appId: "1:311140447739:web:1e629544dd2c8dff08875e"
-};
-
 const Footer = (props) => (
     <footer className="bg-dark pt-4" style={{msFlex: "0 0 auto", flex: "0 0 auto"}}>
         <div className="container col-12">
@@ -80,9 +70,9 @@ const Footer = (props) => (
         </div>
 
         {/*<!-- The core Firebase JS SDK is always required and must be listed first -->
+            <script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-app.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-firestore.js"></script>
             */}
-        <script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-firestore.js"></script>
 
         {/*<!-- TODO: Add SDKs for Firebase products that you want to use
              https://firebase.google.com/docs/web/setup#reserved-urls -->*/}

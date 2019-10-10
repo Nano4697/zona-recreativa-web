@@ -4,11 +4,11 @@ import Link from 'next/link';
 import fetch from 'isomorphic-unfetch';
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
+// import * as firebase from "firebase/app";
 
 // // Add the Firebase products that you want to use
-import "firebase/auth";
-import "firebase/firestore";
+// import "firebase/auth";
+// import "firebase/firestore";
 
 //Components -----------------------------------------------------------------------------------------------------
 import Layout from './components/GeneralLayout';
@@ -19,16 +19,16 @@ import VCard from './components/VCard';
 
 //Other -----------------------------------------------------------------------------------------------------
 // import data from './data/packages.json';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCX8-lZo1LksguFjXp1aucpwn34QV33HUw",
-  authDomain: "zona-recreativa-cr.firebaseapp.com",
-  databaseURL: "https://zona-recreativa-cr.firebaseio.com",
-  projectId: "zona-recreativa-cr",
-  storageBucket: "zona-recreativa-cr.appspot.com",
-  messagingSenderId: "311140447739",
-  appId: "1:311140447739:web:1e629544dd2c8dff08875e"
-};
+//
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCX8-lZo1LksguFjXp1aucpwn34QV33HUw",
+//   authDomain: "zona-recreativa-cr.firebaseapp.com",
+//   databaseURL: "https://zona-recreativa-cr.firebaseio.com",
+//   projectId: "zona-recreativa-cr",
+//   storageBucket: "zona-recreativa-cr.appspot.com",
+//   messagingSenderId: "311140447739",
+//   appId: "1:311140447739:web:1e629544dd2c8dff08875e"
+// };
 
 
 class Index extends Component
@@ -42,11 +42,11 @@ class Index extends Component
         }
 
         // Initialize firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        // if (!firebase.apps.length) {
+        //     firebase.initializeApp(firebaseConfig);
+        // }
 
-        var db = firebase.firestore();
+        // var db = firebase.firestore();
 
         db.collection("Paquetes").orderBy("solicitudes", "desc").limit(10).get().then((querySnapshot) => {
             querySnapshot.forEach((doc) => {

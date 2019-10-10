@@ -4,6 +4,14 @@ import Router from 'next/router'
 import { Formik, Field } from 'formik';
 import React, { Component } from 'react';
 
+import firebase from './components/Firebase/firebase';
+
+// Firebase App (the core Firebase SDK) is always required and
+// must be listed before other Firebase SDKs
+// var firebase = require("firebase/app");
+
+// Add the Firebase products that you want to use
+require("firebase/auth");
 
 class AdminLogin extends Component
 {
@@ -29,10 +37,19 @@ class AdminLogin extends Component
         e.preventDefault();
 
         //Poner aqui lo que tiene que hacer el form cuando se envia la informacion
-        console.log(this.state)
+        // console.log(this.state)
 
-        if (this.state.username == 'admin' && this.state.password == 'admin')
-            Router.push('/adminMain')
+        var email = this.state.username;
+        var password = this.state.password;
+
+        firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          // ...
+        });
+        // Router.push('/adminMain');
+        console.log(firebase.auth())
 
         //Reincia los inputs
         this.setState({
