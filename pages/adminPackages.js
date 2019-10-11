@@ -22,6 +22,9 @@ class AdminPackages extends Component {
         this.state = {
             nombrePaquete: '',
             precioPaquete: '',
+            breakfast: false,
+            lunch: false,
+            coffe: false,
             horaInicio: '',
             horaFinal: '',
             capacidadPaquete: '',
@@ -143,8 +146,10 @@ class AdminPackages extends Component {
     handleInputChange(e)
     {
         //obtiene el valor y el nombre del componente que cambio
-        const {value, name} = e.target;
-        // console.log(value, name);
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+        console.log(value, name);
 
         // Actualiza el campo que se modifico
         this.setState({
@@ -165,7 +170,9 @@ class AdminPackages extends Component {
                     </div>
 
                     <div className="row justify-content-end pr-3">
-                        <a onClick={this.addPackage}><AddIcon /></a>
+                        <button type="button" className="btn btn-primary m-2 rounded-circle" data-toggle="modal" data-target="#addPkg" style={{height: "50px"}}>
+                            <AddIcon />
+                        </button>
                     </div>
                     <div className="package-admin-table">
                         <AdminTable headers={['Nombre Paquete','Hora inicio','Hora final','Capacidad','Tipo de ruta']}>
@@ -173,40 +180,73 @@ class AdminPackages extends Component {
                         </AdminTable>
                     </div>
 
-                    <Modal show={this.state.showModal} onHide={this.handleClose} centered>
-                        <Modal.Header closeButton>
-                            <Modal.Title></Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <div className="" style={{textAlign: 'center'}}>
-                                <Formik  onSubmit={(data)=>{console.log(data)}}
-                                    initialValues = {{
-                                    nombrePaquete: "",
-                                    horaInicio: "",
-                                    horaFinal: "",
-                                    capacidadPaquete: "",
-                                    tipoRuta: "" }}>
-                                    {({handleSubmit}) =>
-                                        <Form onSubmit={handleSubmit}>
-                                            <Field name="nombrePaquete" placeholder="Nombre del paquete" component={this.InputField} className="form-control" value={this.state.nombrePaquete}  onChange={this.handleInputChange} />
-                                            <Field name="horaInicio" placeholder="Hora de Inicio" component={this.InputField} className="form-control" value={this.state.horaInicio}  onChange={this.handleInputChange} />
-                                            <Field name="horaFinal" placeholder="Hora Final" component={this.InputField} className="form-control" value={this.state.horaFinal}  onChange={this.handleInputChange} />
-                                            <Field name="capacidadPaquete" placeholder="Capacidad de paquete" component={this.InputField} className="form-control" value={this.state.capacidadPaquete}  onChange={this.handleInputChange} />
-                                            <Field name="tipoRuta" placeholder="Tipo de ruta" component={this.InputField}  className="form-control" value={this.state.tipoRuta}  onChange={this.handleInputChange} />
-                                        </Form>
-                                    }
-                                </Formik>
+                    <div className="modal fade" id="addPkg" tabIndex="-1" role="dialog" aria-hidden="true">
+                        <div className="modal-dialog" role="document">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Nuevo paquete</h5>
+                                    <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div className="modal-body">
+                                    <form className="" onSubmit={this.handleSubmit}>
+                                        <div className="mt-2 form-group">
+                                            <label htmlFor="name">Nombre del paquete</label>
+                                            <input className="form-control" name="name" type="text" placeholder="Nombre del paquete" value={this.state.name} onChange={this.handleInputChange}/>
+                                        </div>
+                                        <div className="mt-2 form-group">
+                                            <label htmlFor="description">Descripción del paquete</label>
+                                            <textarea className="form-control" name="description" type="textarea" rows="2" placeholder="Descripción del paquete" value={this.state.descrip} onChange={this.handleInputChange}/>
+                                        </div>
+                                        <label>Alimentación</label>
+                                        <div className="row justify-content-center">
+                                            <div className="form-check form-check-inline">
+                                                <input className="form-check-input" type="checkbox" name="breakfast" value={this.state.breakfast} onChange={this.handleInputChange}/>
+                                                <label className="form-check-label" htmlFor="breakfast">Desayuno</label>
+                                            </div>
+                                            <div className="form-check form-check-inline">
+                                                <input className="form-check-input" type="checkbox" name="lunch" value={this.state.lunch} onChange={this.handleInputChange}/>
+                                                <label className="form-check-label" htmlFor="lunch">Almuerzo</label>
+                                            </div>
+                                            <div className="form-check form-check-inline">
+                                                <input className="form-check-input" type="checkbox" name="coffe" value={this.state.coffe} onChange={this.handleInputChange}/>
+                                                <label className="form-check-label" htmlFor="coffe">Café/Merienda</label>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col mt-2 form-group">
+                                                <label htmlFor="capacity">Capacidad</label>
+                                                <input className="form-control" name="capacity" type="number" min="0" placeholder="Capacidad máxima del grupo" value={this.state.capacity} onChange={this.handleInputChange}/>
+                                            </div>
+                                            <div className="col mt-2 form-group">
+                                                <label htmlFor="type">Tipo</label>
+                                                <select className="form-control" placeholder="Tipo de viaje" value={this.state.type} onChange={this.handleInputChange}>
+                                                    <option>Científico</option>
+                                                    <option>Cultural</option>
+                                                    <option>Educativo</option>
+                                                    <option>Recreativo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        {/*<Field name="nombrePaquete" placeholder="Nombre del paquete" component={this.InputField} className="form-control" value={this.state.nombrePaquete}  onChange={this.handleInputChange} />
+                                        <Field name="horaInicio" placeholder="Hora de Inicio" component={this.InputField} className="form-control" value={this.state.horaInicio}  onChange={this.handleInputChange} />
+                                        <Field name="horaFinal" placeholder="Hora Final" component={this.InputField} className="form-control" value={this.state.horaFinal}  onChange={this.handleInputChange} />
+                                        <Field name="capacidadPaquete" placeholder="Capacidad de paquete" component={this.InputField} className="form-control" value={this.state.capacidadPaquete}  onChange={this.handleInputChange} />
+                                        <Field name="tipoRuta" placeholder="Tipo de ruta" component={this.InputField}  className="form-control" value={this.state.tipoRuta}  onChange={this.handleInputChange} />*/}
+                                    </form>
+                                </div>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={this.handleClose}>
+                                        Cancelar
+                                    </button>
+                                    <button type="button" className="btn btn-primary" type="submit">
+                                        Confirmar
+                                    </button>
+                                </div>
                             </div>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="light" onClick={this.handleClose}>
-                                Cancelar
-                            </Button>
-                            <Button variant="dark" onClick={this.handleSubmit}>
-                                Enviar
-                            </Button>
-                        </Modal.Footer>
-                    </Modal>
+                        </div>
+                    </div>
                 </Layout>
 
                 <Toast style={{
