@@ -28,6 +28,10 @@ Also you'll need the following packages:
 
 `npm install firebase@6.3.4 --save`
 
+`npm i react-currency-input-field`
+
+`npm i react-draggable-list`
+
 
 ## About
 

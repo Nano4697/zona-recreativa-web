@@ -39,7 +39,7 @@ const Post = props => {
         return <div>
         <Navigation />
             <h1 className="pt-4 text-center mb-4">{props.info.name}</h1>
-            <div className="container mb-5 mx-auto pt-sm-auto col-10 ">
+            <div className="container mb-3 mx-auto pt-sm-auto col-10 ">
                 <div className="row">
                     <div className="container col-md-7 col-sm-12 pr-4 mt-md-3 mt-1">
                         <h3 className="row mb-3">
@@ -71,11 +71,12 @@ const Post = props => {
                         <Timeline info={props.info.schedule}/>
                     </div>
                 </div>
-                <div className="row justify-content-center">
-                    <div>
-                        <h4 className="mt-2 mb-4 text-center">
-                            ¿Te interesa?
-                        </h4>
+            </div>
+            <h4 className="mt-2 mb-4 text-center">
+                ¿Te interesa?
+            </h4>
+            <div className="row justify-content-center mb-5">
+                    <div className="col">
                         <p className="text-center">
                             Contacta con nosotros para reservar este recorrido:
                         </p>
@@ -86,6 +87,8 @@ const Post = props => {
                                 </Button>
                             </Link>
                         </div>
+                    </div>
+                    <div className="col">
                         <p className="text-center">
                             O bien, contacta con nosotros para solicitar más información:
                         </p>
@@ -97,7 +100,6 @@ const Post = props => {
                             </Link>
                         </div>
                     </div>
-                </div>
             </div>
         <Footer />
     </div>

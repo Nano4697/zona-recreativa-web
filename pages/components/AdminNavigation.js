@@ -7,11 +7,22 @@ import Link from 'next/link';
 import Router from 'next/router'
 import '../style/fullPage.css'
 
+import firebaseConfig from '../firebase/firebase';
+
+// Firebase App (the core Firebase SDK) is always required and must be listed first
+import * as firebase from "firebase/app";
+
+// Add the Firebase products that you want to use
+import "firebase/auth";
+
 class AdminNavigation extends Component {
 
     constructor ()
     {
         super();
+
+        if (!firebase.apps.length)
+            firebase.initializeApp(firebaseConfig);
 
         //Se necesita hacer bind a todas la funciones que se usen dentro de la clase.
         this.endSession = this.endSession.bind(this);
@@ -19,7 +30,12 @@ class AdminNavigation extends Component {
 
     endSession()
     {
-        Router.push('/');
+        firebase.auth().signOut().then(function() {
+            // Sign-out successful.
+            Router.push('/');
+        }).catch(function(error) {
+            // An error happened.
+        });
     }
 
     render() {
@@ -70,11 +86,9 @@ class AdminNavigation extends Component {
                             Transporte
                         </a>
                     </Link>
-                    <Link href="/">
-                        <a onClick={this.endSession} className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold">
-                            Cerrar sesión
-                        </a>
-                    </Link>
+                    <a onClick={this.endSession} className="nav-link px-xl-3 px-lg-2 pl-md-1 pr-md-0 mx-md-2 text-light font-weight-bold" style={{cursor: "pointer"}}>
+                        Cerrar sesión
+                    </a>
                 </Nav>
         </Navbar.Collapse>
 

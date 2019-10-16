@@ -20,26 +20,29 @@ class AdminTableItem extends Component {
     {
         if (typeof this.props.onDelete==='function')
         {
-            this.deletePackage(this.props.id);
+            this.props.onDelete(this.props.id);
         }
     }
 
     render() {
         return(
             <tr>
-                {this.props.items!=undefined && this.props.items.map(data => <td>{data}</td>)}
+                {this.props.items!=undefined && this.props.items.map(data => <td style={{overflow: "auto"}}>{data}</td>)}
                 <td>
-                <a onClick={() => typeof this.props.onEdit==='function' && this.props.onEdit(this.props.id)}><EditIcon /></a>
+                <a onClick={() => typeof this.props.onEdit==='function' && this.props.onEdit(this.props.id)}>
+                    <EditIcon />
+                </a>
                 <OverlayTrigger
                     placement='bottom'
                     trigger='click'
                     overlay={
                         <Tooltip id={this.props.id}>
-                            <a onClick={this.onDelete} >Eliminar</a>
                         </Tooltip>
                     }
                 >
+                <a onClick={this.onDelete} style={{cursor: "pointer"}}>
                     <DeleteIcon />
+                </a>
                 </OverlayTrigger>
                 </td>
             </tr>
