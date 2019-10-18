@@ -24,14 +24,15 @@ Also you'll need the following packages:
 
 `npm install --save-dev typescript @types/react @types/node`
 
-`npm i react-multi-carousel image-watermark`
+`npm i react-multi-carousel image-watermark react-currency-input-field react-draggable-list uniqid`
 
 `npm install firebase@6.3.4 --save`
 
-`npm i react-currency-input-field`
+`npm install @material-ui/core`
 
-`npm i react-draggable-list`
+`npm install @material-ui/icons`
 
+`npm install material-table --save`
 
 ## About
 
@@ -51,8 +52,6 @@ https://docs.searchkit.co/stable/
 
 `npm i react-google-maps`
 
-`npm install @material-ui/core` (Agregar a futuro)
-`npm install @material-ui/icons`
 
 ### Firebase + react
 

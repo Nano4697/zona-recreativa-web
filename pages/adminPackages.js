@@ -1,22 +1,22 @@
 //Packages
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button'
-import Table from 'react-bootstrap/Table'
 import Toast from 'react-bootstrap/Toast'
 import CurrencyInput from 'react-currency-input-field'
 import DraggableList from 'react-draggable-list';
+import MaterialTable from "material-table";
 
 //Components
 import AdminNavigation from './components/AdminNavigation';
 import Layout from './components/FullLayout';
-import AdminTable from './components/AdminTable';
-import AdminTableItem from './components/AdminTableItem';
 import SchedBuilder from './components/schedBuilder';
 
 //Others
 import AddIcon from '@material-ui/icons/Add';
+import linearScale from '@material-ui/icons/LinearScale';
 
 var ReactDOM = require('react-dom');
+var uniqid = require('uniqid');
 
 class AdminPackages extends Component {
 
@@ -26,6 +26,7 @@ class AdminPackages extends Component {
 
         //inicializa state
         this.state = {
+            id: '',
             name: '',
             descrip: '',
             breakfast: false,
@@ -49,10 +50,21 @@ class AdminPackages extends Component {
             showModal: false,
             showMessage: false,
             editId: -1,
-            items: []
+            items: [],
+
+            columns: [
+                { title: 'Nombre', field: 'name' },
+                { title: 'Descripción', field: 'descrip' },
+                { title: 'Capacidad', field: 'capacity', type: 'numeric' },
+                { title: 'Tipo de ruta', field: 'type', lookup: { cientifico: 'Cientifico', cultural: 'Cultural', educativo: 'Educativo', recreativo: 'Recreativo' } },
+                { title: 'Desayuno', field: 'breakfast', type: 'boolean' },
+                { title: 'Almuerzo', field: 'lunch', type: 'boolean' },
+                { title: 'Cafe', field: 'coffe', type: 'boolean' },
+                { title: 'Precio', field: 'price', type: 'numeric' }
+            ]
         };
 
-        this.myRef = React.createRef();
+        // this.myRef = React.createRef();
 
         //Se necesita hacer bind a todas la funciones que se usen dentro de la clase.
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -62,7 +74,6 @@ class AdminPackages extends Component {
         this.firstSubmit = this.firstSubmit.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleClose = this.handleClose.bind(this);
-        this.toSchedule = this.toSchedule.bind(this);
         this.toPkgAdd = this.toPkgAdd.bind(this);
         this.addActivity = this.addActivity.bind(this);
         this.removeActivity = this.removeActivity.bind(this);
@@ -71,19 +82,13 @@ class AdminPackages extends Component {
 
     componentDidMount()
     {
-        ReactDOM.findDOMNode(this.myRef.current).setAttribute('required', true);
-        $('#setSchedule').modal('handleUpdate')
+        // ReactDOM.findDOMNode(this.myRef.current).setAttribute('required', true);
+        // $('#setSchedule').modal('handleUpdate')
     }
 
     componentDidUpdate()
     {
         $('#setSchedule').modal('handleUpdate')
-    }
-
-    toSchedule()
-    {
-        $('#addPkg').modal('dispose')
-        $('#setSchedule').modal('show')
     }
 
     toPkgAdd()
@@ -171,26 +176,23 @@ class AdminPackages extends Component {
 
         //Poner aqui lo que tiene que hacer el form cuando se envia la informacion
         let message = 'Paquete agregado';
+        var uid = uniqid();
+        var obj = {
+            id: uid,
+            name: this.state.name,
+            descrip: this.state.descrip,
+            breakfast: this.state.breakfast,
+            lunch: this.state.lunch,
+            coffe: this.state.coffe,
+            capacity: parseInt(this.state.capacity, 10),
+            type: this.state.type,
+            price: '₡ ' + this.state.precio
+        }
+
         if (this.state.editId === -1) {
-            this.state.items.push([
-                this.state.name,
-                this.state.descrip,
-                this.state.breakfast?'Sí':'No',
-                this.state.lunch?'Sí':'No',
-                this.state.coffe?'Sí':'No',
-                parseInt(this.state.capacity, 10),
-                this.state.type,
-                this.state.precio]);
+            this.state.items.push(obj);
         } else {
-            this.state.items[this.state.editId] = [
-                this.state.name,
-                this.state.descrip,
-                this.state.breakfast?'Sí':'No',
-                this.state.lunch?'Sí':'No',
-                this.state.coffe?'Sí':'No',
-                parseInt(this.state.capacity, 10),
-                this.state.type,
-                this.state.precio];
+            this.state.items[this.state.editId] = obj;
             message = 'Cambios guardados';
         }
 
@@ -212,7 +214,7 @@ class AdminPackages extends Component {
             message: message
         });
 
-        $('#setSchedule').modal('toggle')
+        $('#setSchedule').modal('hide')
     }
 
     firstSubmit(e)
@@ -247,8 +249,8 @@ class AdminPackages extends Component {
             showModal: false
         });
 
-        $('#addPkg').modal('hide')
-        $('#setSchedule').modal('hide')
+        $('.modal').modal({dismiss: false});
+
     }
 
     //Actualiza los valores cada vez que se hace un cambio en el input
@@ -258,6 +260,7 @@ class AdminPackages extends Component {
         const target = event.target;
         const value = target.type === 'checkbox' ? target.checked : target.value;
         const name = target.name == '' ? target.id : target.name;
+
 
         // Actualiza el campo que se modifico
         this.setState({
@@ -282,25 +285,75 @@ class AdminPackages extends Component {
             <div>
                 <AdminNavigation />
                 <Layout>
-                    <div className="row justify-content-center">
-                        <h3 className="mt-4">
+                    <div className="row justify-content-center mb-4">
+                        <h3 className="my-4">
                             Administración paquetes
                         </h3>
                     </div>
 
-                    <div className="row justify-content-end pr-3">
-                        <button type="button" className="btn btn-primary m-2 rounded-circle" data-toggle="modal" data-target="#addPkg" style={{height: "50px"}}>
-                            <AddIcon />
-                        </button>
-                    </div>
+                    <MaterialTable
+                        title=''
+                        columns={this.state.columns}
+                        data={this.state.items}
+                        editable={{
+                            onRowAdd: newData =>
+                                new Promise((resolve, reject) =>
+                                {
+                                    setTimeout(() =>
+                                    {
+                                        {
+                                            const data = this.state.items;
 
-                    <div className="" style={{whiteSpace: "nowrap", overflowX: "auto"}}>
-                        <AdminTable headers={['Nombre','Descripción','Desayuno', 'Almuerzo', 'Cafe','Capacidad','Tipo de ruta','Precio']}>
-                            {this.state.items.map((item, index) => <AdminTableItem id={index} items={item} onEdit={this.editPackage} onDelete={this.deletePackage} />)}
-                        </AdminTable>
-                    </div>
+                                            newData['id'] = uniqid();
 
-                    <div className="modal fade" id="addPkg" tabIndex="-1" role="dialog" aria-hidden="true">
+                                            if (newData.length > 0 && newData.price.charAt(0) != '₡')
+                                                newData.price = '₡ ' + newData.price;
+
+                                            data.push(newData);
+                                            this.setState({ data }, () => resolve());
+                                        }
+                                        resolve()
+                                    }, 1000)
+                                }),
+                            onRowUpdate: (newData, oldData) =>
+                                new Promise((resolve, reject) =>
+                                {
+                                    setTimeout(() =>
+                                    {
+                                        {
+                                            const data = this.state.items;
+                                            const index = data.indexOf(oldData);
+
+                                            if (newData.price.charAt(0) != '₡')
+                                                newData.price = '₡ ' + newData.price;
+
+                                            data[index] = newData;
+                                            this.setState({ data }, () => resolve());
+                                        }
+                                        resolve()
+                                    }, 1000)
+                                })
+                        }}
+                        actions={[
+                        {
+                          icon: linearScale,
+                          tooltip: 'Itinerario',
+                          onClick: (event, rowData) => {
+                            $('#setSchedule').modal('show')
+                            console.log(rowData)
+                          }
+                        }
+                      ]}
+                        options={{
+                            actionsColumnIndex: -1,
+                            headerStyle: {
+                                paddingLeft: '5px',
+                                paddingRight: '5px'
+                              }
+                        }}
+                    />
+
+                    {/*<div className="modal fade" id="addPkg" tabIndex="-1" role="dialog" aria-hidden="true">
                         <div className="modal-dialog" role="document">
                             <form className="" onSubmit={this.firstSubmit}>
                                 <div className="modal-content">
@@ -341,22 +394,15 @@ class AdminPackages extends Component {
                                             </div>
                                             <div className="col px-0 mt-2 form-group">
                                                 <label htmlFor="precio">Precio</label>
-                                                <CurrencyInput
-                                                    className="form-control"
-                                                    id="precio"
-                                                    value={this.state.precio}
-                                                    onChange={this.handleInputChange}
-                                                    ref={this.myRef}
-                                                    prefix={'₡ '}
-                                                />
+                                                <input className="form-control" name="precio" type="number" min="1" placeholder="Precio" value={this.state.precio} onChange={this.handleInputChange}/>
                                             </div>
                                             <div className="col mt-2 form-group">
                                                 <label htmlFor="type">Tipo de viaje</label>
                                                 <select className="form-control" placeholder="Tipo de viaje" name="type" value={this.state.type} onChange={this.handleInputChange}>
-                                                    <option>Científico</option>
-                                                    <option>Cultural</option>
-                                                    <option>Educativo</option>
-                                                    <option>Recreativo</option>
+                                                    <option value='cientifico'>Científico</option>
+                                                    <option value='cultural'>Cultural</option>
+                                                    <option value='educativo'>Educativo</option>
+                                                    <option value='recreativo'>Recreativo</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -372,7 +418,7 @@ class AdminPackages extends Component {
                                 </div>
                             </form>
                         </div>
-                    </div>
+                    </div>*/}
 
                     {/*Modal 2*/}
                     <div className="modal fade" id="setSchedule" tabIndex="-1" role="dialog" aria-hidden="true">
@@ -446,8 +492,8 @@ class AdminPackages extends Component {
                                         </div>
                                     </div>
                                     <div className="modal-footer">
-                                        <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={this.toPkgAdd}>
-                                            Atrás
+                                        <button type="button" className="btn btn-secondary" data-dismiss="modal">
+                                            Cerrar
                                         </button>
                                         <button type="button" className="btn btn-primary" type="submit">
                                             Confirmar

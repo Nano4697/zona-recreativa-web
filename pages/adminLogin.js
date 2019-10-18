@@ -4,7 +4,7 @@ import Router from 'next/router'
 import { Formik, Field } from 'formik';
 import React, { Component } from 'react';
 
-import firebaseConfig from './firebase/firebase';
+import firebaseConfig from './lib/firebase/firebase';
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 import * as firebase from "firebase/app";
