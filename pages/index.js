@@ -19,7 +19,7 @@ import VCard from './components/VCard';
 //Other -----------------------------------------------------------------------------------------------------
 // import data from './data/packages.json';
 
-import firebaseConfig from './lib/firebase/firestore'
+import firebaseConfig from './lib/firebase/firebase'
 
 class Index extends Component
 {

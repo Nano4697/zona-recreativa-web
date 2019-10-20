@@ -21,7 +21,7 @@ import "firebase/firestore";
 // import data from './data/packages.json';
 // import criteria from './data/filterList.json';
 
-import firebaseConfig from './lib/firebase/firestore'
+import firebaseConfig from './lib/firebase/firebase'
 
 class Catalogo extends Component {
     constructor(props)

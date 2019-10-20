@@ -71,35 +71,35 @@ const Post = props => {
                         <Timeline info={props.info.schedule}/>
                     </div>
                 </div>
-            </div>
-            <h4 className="mt-2 mb-4 text-center">
-                ¿Te interesa?
-            </h4>
-            <div className="row justify-content-center mb-5">
-                    <div className="col">
-                        <p className="text-center">
-                            Contacta con nosotros para reservar este recorrido:
-                        </p>
-                        <div className="row justify-content-center">
-                            <Link href={{ pathname: '/contact', query: { template: "bookit" }}}>
-                                <Button className="btn-lg mb-3" variant="dark" style={{background: "#f5616f", color: "black"}}>
-                                    Reservar
-                                </Button>
-                            </Link>
+                <h4 className="mt-2 mb-4 text-center">
+                    ¿Te interesa?
+                </h4>
+                <div className="row justify-content-center mb-5">
+                        <div className="col">
+                            <p className="text-center">
+                                Contacta con nosotros para reservar este recorrido:
+                            </p>
+                            <div className="row justify-content-center">
+                                <Link href={{ pathname: '/contact', query: { template: "bookit" }}}>
+                                    <Button className="btn-lg mb-3" variant="dark" style={{background: "#f5616f", color: "black"}}>
+                                        Reservar
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                    </div>
-                    <div className="col">
-                        <p className="text-center">
-                            O bien, contacta con nosotros para solicitar más información:
-                        </p>
-                        <div className="row justify-content-center">
-                            <Link href={{ pathname: '/contact', query: { template: "moreInfo", pkgCode: props.info.id}}}>
-                                <Button className="btn-lg mb-3" style={{background: "#00aeef", color: "black"}}>
-                                    Más información
-                                </Button>
-                            </Link>
+                        <div className="col">
+                            <p className="text-center">
+                                O bien, contacta con nosotros para solicitar más información:
+                            </p>
+                            <div className="row justify-content-center">
+                                <Link href={{ pathname: '/contact', query: { template: "moreInfo", pkgCode: props.info.id}}}>
+                                    <Button className="btn-lg mb-3" style={{background: "#00aeef", color: "black"}}>
+                                        Más información
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                    </div>
+                </div>
             </div>
         <Footer />
     </div>

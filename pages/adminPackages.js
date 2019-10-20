@@ -295,6 +295,25 @@ class AdminPackages extends Component {
                         title=''
                         columns={this.state.columns}
                         data={this.state.items}
+                        detailPanel={[
+                            {
+                                tooltip: 'Mas opciones',
+                                render: rowData => {
+                                    return (
+                                        <div
+                                            style={{
+                                            fontSize: 100,
+                                            textAlign: 'center',
+                                            color: 'white',
+                                            backgroundColor: '#43A047',
+                                            }}
+                                        >
+                                            {console.log(rowData)}
+                                        </div>
+                                    )
+                                },
+                            }
+                        ]}
                         editable={{
                             onRowAdd: newData =>
                                 new Promise((resolve, reject) =>
