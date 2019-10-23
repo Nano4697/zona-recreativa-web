@@ -34,6 +34,8 @@ Also you'll need the following packages:
 
 `npm install material-table --save`
 
+`npm i react-image-file-resizer`
+
 ## About
 
 Timeline based on a tutorial blog made by Florian Pop

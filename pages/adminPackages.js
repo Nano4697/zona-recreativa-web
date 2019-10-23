@@ -1,10 +1,16 @@
 //Packages
 import React, { Component } from 'react';
-import Button from 'react-bootstrap/Button'
-import Toast from 'react-bootstrap/Toast'
+import Toast from 'react-bootstrap/Toast';
 import CurrencyInput from 'react-currency-input-field'
 import DraggableList from 'react-draggable-list';
 import MaterialTable from "material-table";
+import IconButton from '@material-ui/core/IconButton';
+import Icon from '@material-ui/core/Icon';
+import Tooltip from '@material-ui/core/Tooltip';
+import Router from 'next/router'
+
+
+import Resizer from 'react-image-file-resizer';
 
 //Components
 import AdminNavigation from './components/AdminNavigation';
@@ -13,28 +19,56 @@ import SchedBuilder from './components/schedBuilder';
 
 //Others
 import AddIcon from '@material-ui/icons/Add';
-import linearScale from '@material-ui/icons/LinearScale';
+import LinearScale from '@material-ui/icons/LinearScale';
+import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import InfoIcon from '@material-ui/icons/Info';
+
+// Firebase App (the core Firebase SDK) is always required and must be listed first
+import * as firebase from "firebase/app";
+
+// Add the Firebase products that you want to use
+import "firebase/auth";
+import "firebase/firestore";
+import "firebase/storage";
+
+import firebaseConfig from './lib/firebase/firebase'
 
 var ReactDOM = require('react-dom');
 var uniqid = require('uniqid');
 
 class AdminPackages extends Component {
 
-    constructor ()
+    constructor (props)
     {
-        super();
+        super(props);
+
+        // Initialize firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        firebase.auth().onAuthStateChanged(function(user)
+        {
+            if (user)
+            {
+                // User is signed in.
+                // username = user.email;
+                // uid = user.uid;
+                // providerData = user.providerData;
+                //
+                // Router.push('/adminMain')
+                // return {user: username, id: uid, provider: provider}
+            }
+            else
+            {
+                Router.push('/')
+            }
+        });
 
         //inicializa state
         this.state = {
-            id: '',
-            name: '',
-            descrip: '',
-            breakfast: false,
-            precio: 0,
-            lunch: false,
-            coffe: false,
-            capacity: 0,
-            type: 'Científico',
             durHora: '',
             durMin: '',
             descripActiv: '',
@@ -42,17 +76,25 @@ class AdminPackages extends Component {
             inicioMin: '',
             inicioAMPM: 'am',
             activities: [],
-            lastActId: 0,
-
-            horaInicio: '',
-            horaFinal: '',
-            tipoGeografia: '',
-            showModal: false,
             showMessage: false,
-            editId: -1,
-            items: [],
+            items: this.props.data,
+            img: {},
 
             columns: [
+                { title: 'Imagen', field: 'thumbnail', render: rowData => (
+                    <img
+                        style={{ height: 36, borderRadius: '50%' }}
+                        src={rowData.thumbnail}
+                    />
+                    ), editComponent: props => (
+                        <input
+                            type="file"
+                            accept="image/*"
+                            value={props.value}
+                            ref={this.fileInput}
+                        />
+                    )
+                },
                 { title: 'Nombre', field: 'name' },
                 { title: 'Descripción', field: 'descrip' },
                 { title: 'Capacidad', field: 'capacity', type: 'numeric' },
@@ -64,20 +106,46 @@ class AdminPackages extends Component {
             ]
         };
 
-        // this.myRef = React.createRef();
+
+        this.fileInput = React.createRef();
 
         //Se necesita hacer bind a todas la funciones que se usen dentro de la clase.
         this.handleInputChange = this.handleInputChange.bind(this);
-        this.addPackage = this.addPackage.bind(this);
-        this.editPackage = this.editPackage.bind(this);
-        this.deletePackage = this.deletePackage.bind(this);
-        this.firstSubmit = this.firstSubmit.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleClose = this.handleClose.bind(this);
-        this.toPkgAdd = this.toPkgAdd.bind(this);
         this.addActivity = this.addActivity.bind(this);
-        this.removeActivity = this.removeActivity.bind(this);
+        this.handleClose = this.handleClose.bind(this);
         this._onListChange = this._onListChange.bind(this);
+        this.loadSchedule = this.loadSchedule.bind(this);
+
+        this.removeActivity = this.removeActivity.bind(this);
+    }
+
+    static async getInitialProps()
+    {
+        // Initialize firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        var db = firebase.firestore();
+
+        var items = []
+
+        await db.collection("Paquetes").get().then((querySnapshot) => {
+            console.log(querySnapshot)
+            querySnapshot.forEach((doc) => {
+                if (doc.exists)
+                {
+                    items.push(doc.data());
+                }
+            });
+        });
+
+        // if (query.hasOwnProperty("tipo"))
+        //     return {tipo: query.tipo, criteria: filter}
+        // else
+        //     return {criteria: filter}
+        return {data: items}
     }
 
     componentDidMount()
@@ -91,45 +159,11 @@ class AdminPackages extends Component {
         $('#setSchedule').modal('handleUpdate')
     }
 
-    toPkgAdd()
+    loadSchedule(id)
     {
-        $('#setSchedule').modal('hide')
-        $('#setSchedule').on('hidden.bs.modal', function (e) {
-            $('#addPkg').modal('show')
+        this.setState({
+            activities: [...this.state.activities, {id: 1, descrip: "Descripcion de prueba", hora: "7", min: "00", ampm: "am"}]
         })
-    }
-
-    addPackage(e)
-    {
-        this.setState({
-            showModal: true,
-            editId: -1
-        });
-    }
-
-    editPackage(id)
-    {
-        this.setState({
-            nombrePaquete: this.state.items[id][0],
-            precioPaquete: this.state.items[id][1],
-            horaInicio: this.state.items[id][2],
-            horaFinal: this.state.items[id][3],
-            capacidadPaquete: this.state.items[id][4],
-            tipoRuta: this.state.items[id][5],
-            tipoGeografia: this.state.items[id][6],
-            showModal: true,
-            editId: id
-        });
-    }
-
-    deletePackage(id)
-    {
-        this.state.items.pop(id);
-
-        this.setState({
-            showMessage: true,
-            message: 'Paquete eliminado'
-        });
     }
 
     removeActivity(index)
@@ -175,60 +209,46 @@ class AdminPackages extends Component {
         console.log(this.state)
 
         //Poner aqui lo que tiene que hacer el form cuando se envia la informacion
-        let message = 'Paquete agregado';
-        var uid = uniqid();
-        var obj = {
-            id: uid,
-            name: this.state.name,
-            descrip: this.state.descrip,
-            breakfast: this.state.breakfast,
-            lunch: this.state.lunch,
-            coffe: this.state.coffe,
-            capacity: parseInt(this.state.capacity, 10),
-            type: this.state.type,
-            price: '₡ ' + this.state.precio
-        }
-
-        if (this.state.editId === -1) {
-            this.state.items.push(obj);
-        } else {
-            this.state.items[this.state.editId] = obj;
-            message = 'Cambios guardados';
-        }
-
-        //Reincia los inputs
-        this.setState({
-            name: '',
-            descrip: '',
-            breakfast: false,
-            precio: '',
-            lunch: false,
-            coffe: false,
-            capacity: 0,
-            tipoRuta: '',
-            durHora: 0,
-            durMin: 0,
-            descItiner: '',
-            showModal: false,
-            showMessage: true,
-            message: message
-        });
-
-        $('#setSchedule').modal('hide')
-    }
-
-    firstSubmit(e)
-    {
-        e.preventDefault();
-
-        if (!(this.state.name == '' || this.state.descrip == '' || this.state.precio == '' || this.state.capacity == 0))
-        {
-            $('#addPkg').modal('hide')
-            $('#addPkg').on('hidden.bs.modal', function (e) {
-                $('#setSchedule').modal('show')
-            })
-        }
-
+        // let message = 'Paquete agregado';
+        // var uid = uniqid();
+        // var obj = {
+        //     id: uid,
+        //     name: this.state.name,
+        //     descrip: this.state.descrip,
+        //     breakfast: this.state.breakfast,
+        //     lunch: this.state.lunch,
+        //     coffe: this.state.coffe,
+        //     capacity: parseInt(this.state.capacity, 10),
+        //     type: this.state.type,
+        //     price: '₡ ' + this.state.precio
+        // }
+        //
+        // if (this.state.editId === -1) {
+        //     this.state.items.push(obj);
+        // } else {
+        //     this.state.items[this.state.editId] = obj;
+        //     message = 'Cambios guardados';
+        // }
+        //
+        // //Reincia los inputs
+        // this.setState({
+        //     name: '',
+        //     descrip: '',
+        //     breakfast: false,
+        //     precio: '',
+        //     lunch: false,
+        //     coffe: false,
+        //     capacity: 0,
+        //     tipoRuta: '',
+        //     durHora: 0,
+        //     durMin: 0,
+        //     descItiner: '',
+        //     showModal: false,
+        //     showMessage: true,
+        //     message: message
+        // });
+        //
+        // $('#setSchedule').modal('hide')
     }
 
     handleClose(e)
@@ -300,14 +320,12 @@ class AdminPackages extends Component {
                                 tooltip: 'Mas opciones',
                                 render: rowData => {
                                     return (
-                                        <div
-                                            style={{
-                                            fontSize: 100,
-                                            textAlign: 'center',
-                                            color: 'white',
-                                            backgroundColor: '#43A047',
-                                            }}
-                                        >
+                                        <div className="row justify-content-center">
+                                            <Tooltip title="Agregar itinerario">
+                                                <IconButton aria-label="agregar itinerario" data-toggle="modal" data-target="#setSchedule" onClick={this.loadSchedule}>
+                                                    <LinearScale/>
+                                                </IconButton>
+                                            </Tooltip>
                                             {console.log(rowData)}
                                         </div>
                                     )
@@ -320,17 +338,83 @@ class AdminPackages extends Component {
                                 {
                                     setTimeout(() =>
                                     {
+                                        const data = this.state.items;
+                                        newData['id'] = uniqid();
+                                        // newData.price = '₡ ' + newData.price;
+
+                                        this.setState({
+                                            img: this.fileInput.current.files[0]
+                                        })
+
+
+                                        var ref = firebase.storage().ref();
+
+                                        newData.refThumbnail = 'packages/' + uniqid() + '.png';
+                                        newData.refImage = 'packages/' + uniqid() + '.png';
+                                        newData.thumbnailURL = ''
+                                        newData.imgURL = ''
+
+
+                                        var resizeImg = new Promise((resolve, reject) =>
                                         {
-                                            const data = this.state.items;
+                                            setTimeout(() =>
+                                            {
+                                                console.log(this)
+                                                var img = this.state.img
+                                                var pkgRef = ref.child(newData.refThumbnail);
 
-                                            newData['id'] = uniqid();
+                                                Resizer.imageFileResizer(
+                                                    img,
+                                                    50,
+                                                    50,
+                                                    'PNG',
+                                                    100,
+                                                    0,
+                                                    function (uri) {
+                                                        pkgRef.putString(uri, 'data_url')
+                                                            .then(function(snapshot) {
+                                                                pkgRef.getDownloadURL()
+                                                                    .then(function(url) {
+                                                                        newData.thumbnailURL = url
+                                                                        console.log(newData.thumbnailURL)
+                                                                    })``
+                                                            })
+                                                    },
+                                                    'base64'
+                                                );
 
-                                            if (newData.length > 0 && newData.price.charAt(0) != '₡')
-                                                newData.price = '₡ ' + newData.price;
+                                                var pkgRef = ref.child(newData.refImage);
+                                                Resizer.imageFileResizer(
+                                                    img,
+                                                    300,
+                                                    300,
+                                                    'PNG',
+                                                    100,
+                                                    0,
+                                                    uri => {
+                                                        pkgRef.putString(uri, 'data_url')
+                                                            .then(function(snapshot) {}); //Hacer lo mismo que en la anterior
+                                                    },
+                                                    'base64'
+                                                );
+                                            }, 50)
+                                        })
 
-                                            data.push(newData);
-                                            this.setState({ data }, () => resolve());
-                                        }
+                                        resizeImg.then((success) =>
+                                        {
+                                            console.log("¡Sí! ") //Ver como hacer que esto se ejecute despues del resize de imagenes
+                                        })
+                                        // var db = firebase.firestore();
+                                        // db.collection("Paquetes").add(newData)
+                                        //     .then(function(docRef) {
+                                        //         console.log("Document written with ID: ", docRef.id);
+                                        //
+                                        //         data.push(newData);
+                                        //         this.setState({ data });
+                                        //     })
+                                        //     .catch(function(error) {
+                                        //         console.error("Error adding document: ", error);
+                                        //     });
                                         resolve()
                                     }, 1000)
                                 }),
@@ -354,15 +438,15 @@ class AdminPackages extends Component {
                                 })
                         }}
                         actions={[
-                        {
-                          icon: linearScale,
-                          tooltip: 'Itinerario',
-                          onClick: (event, rowData) => {
-                            $('#setSchedule').modal('show')
-                            console.log(rowData)
-                          }
-                        }
-                      ]}
+                            {
+                                icon: LinearScale,
+                                tooltip: 'Itinerario',
+                                onClick: (event, rowData) => {
+                                    $('#setSchedule').modal('show')
+                                    console.log(rowData)
+                                }
+                            }
+                        ]}
                         options={{
                             actionsColumnIndex: -1,
                             headerStyle: {
