@@ -36,6 +36,8 @@ Also you'll need the following packages:
 
 `npm i react-image-file-resizer`
 
+`npm i resize-img`
+
 ## About
 
 Timeline based on a tutorial blog made by Florian Pop

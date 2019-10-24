@@ -28,6 +28,16 @@ module.exports = withFonts(withImages(withCSS({
         return paths;
     },
 
+    webpack: (config) => {
+  return {
+    ...config,
+    node: {
+      fs:
+        'empty'
+      }
+    }
+},
+
     env: {
         REACT_APP_API_KEY: 'AIzaSyCX8-lZo1LksguFjXp1aucpwn34QV33HUw',
         REACT_APP_AUTH_DOMAIN: 'zona-recreativa-cr.firebaseapp.com',

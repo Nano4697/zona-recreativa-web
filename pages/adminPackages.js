@@ -7,8 +7,8 @@ import MaterialTable from "material-table";
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
-import Router from 'next/router'
-
+import Router from 'next/router';
+import Snackbar from '@material-ui/core/Snackbar';
 
 import Resizer from 'react-image-file-resizer';
 
@@ -16,6 +16,7 @@ import Resizer from 'react-image-file-resizer';
 import AdminNavigation from './components/AdminNavigation';
 import Layout from './components/FullLayout';
 import SchedBuilder from './components/schedBuilder';
+import SnackbarAlert from './components/SnackbarAlert'
 
 //Others
 import AddIcon from '@material-ui/icons/Add';
@@ -37,6 +38,7 @@ import firebaseConfig from './lib/firebase/firebase'
 
 var ReactDOM = require('react-dom');
 var uniqid = require('uniqid');
+
 
 class AdminPackages extends Component {
 
@@ -76,15 +78,17 @@ class AdminPackages extends Component {
             inicioMin: '',
             inicioAMPM: 'am',
             activities: [],
-            showMessage: false,
             items: this.props.data,
             img: {},
+            showModal: false,
+            modalType: 'success',
+            modalMsg: '',
 
             columns: [
                 { title: 'Imagen', field: 'thumbnail', render: rowData => (
                     <img
-                        style={{ height: 36, borderRadius: '50%' }}
-                        src={rowData.thumbnail}
+                        style={{ height: 36, width: 36, borderRadius: '50%' }}
+                        src={rowData.thumbnailURL}
                     />
                     ), editComponent: props => (
                         <input
@@ -116,6 +120,7 @@ class AdminPackages extends Component {
         this.handleClose = this.handleClose.bind(this);
         this._onListChange = this._onListChange.bind(this);
         this.loadSchedule = this.loadSchedule.bind(this);
+        this.closeModal = this.closeModal.bind(this);
 
         this.removeActivity = this.removeActivity.bind(this);
     }
@@ -146,6 +151,16 @@ class AdminPackages extends Component {
         // else
         //     return {criteria: filter}
         return {data: items}
+    }
+
+    closeModal(event, reason)
+    {
+        if (reason === 'clickaway') {
+          return;
+        }
+        this.setState({
+            showModal: false
+        })
     }
 
     componentDidMount()
@@ -290,17 +305,6 @@ class AdminPackages extends Component {
 
     render()
     {
-        var alertModal;
-
-        if(this.props.alertModal!='')
-        {
-            alertModal = <div className="alert alert-success alert-dismissible fade show" role="alert" style={{fontSize: "12px"}}>
-                Hemos creado una plantilla para tu mensaje. ¡Edítalo o crea uno nuevo que se adecúe a tus necesidades!.
-                <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        }
         return(
             <div>
                 <AdminNavigation />
@@ -310,6 +314,22 @@ class AdminPackages extends Component {
                             Administración paquetes
                         </h3>
                     </div>
+
+                    <Snackbar
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                        open={this.state.showModal}
+                        autoHideDuration={5000}
+                        onClose={this.closeModal}
+                      >
+                         <SnackbarAlert
+                            onClose={this.closeModal}
+                            variant={this.state.modalType}
+                            message={this.state.modalMsg}
+                        />
+                      </Snackbar>
 
                     <MaterialTable
                         title=''
@@ -347,74 +367,88 @@ class AdminPackages extends Component {
                                         })
 
 
-                                        var ref = firebase.storage().ref();
 
                                         newData.refThumbnail = 'packages/' + uniqid() + '.png';
                                         newData.refImage = 'packages/' + uniqid() + '.png';
                                         newData.thumbnailURL = ''
                                         newData.imgURL = ''
 
+                                        var imgURI = ''
+                                        var thumbnailURI = ''
 
                                         var resizeImg = new Promise((resolve, reject) =>
                                         {
                                             setTimeout(() =>
                                             {
-                                                console.log(this)
                                                 var img = this.state.img
-                                                var pkgRef = ref.child(newData.refThumbnail);
 
-                                                Resizer.imageFileResizer(
-                                                    img,
-                                                    50,
-                                                    50,
-                                                    'PNG',
-                                                    100,
-                                                    0,
-                                                    function (uri) {
-                                                        pkgRef.putString(uri, 'data_url')
-                                                            .then(function(snapshot) {
-                                                                pkgRef.getDownloadURL()
-                                                                    .then(function(url) {
-                                                                        newData.thumbnailURL = url
-                                                                        console.log(newData.thumbnailURL)
-                                                                    })``
-                                                            })
-                                                    },
-                                                    'base64'
-                                                );
-
-                                                var pkgRef = ref.child(newData.refImage);
-                                                Resizer.imageFileResizer(
-                                                    img,
-                                                    300,
-                                                    300,
-                                                    'PNG',
-                                                    100,
-                                                    0,
+                                                Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
                                                     uri => {
-                                                        pkgRef.putString(uri, 'data_url')
-                                                            .then(function(snapshot) {}); //Hacer lo mismo que en la anterior
+                                                        newData.thumbnailURI= uri
+
+                                                        Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
+                                                            uri => {
+                                                                newData.imgURI= uri
+                                                                resolve()
+                                                            },
+                                                            'base64'
+                                                        );
                                                     },
                                                     'base64'
                                                 );
                                             }, 50)
                                         })
 
+                                        var accessThis = this;
+
                                         resizeImg.then((success) =>
                                         {
-                                            console.log("¡Sí! ") //Ver como hacer que esto se ejecute despues del resize de imagenes
+                                            var ref = firebase.storage().ref();
+                                            var db = firebase.firestore();
+
+                                            console.log(newData)
+
+                                            // load thumbnail
+                                            var pkgRef = ref.child(newData.refThumbnail);
+                                            pkgRef.putString(newData.thumbnailURI, 'data_url')
+                                                .then(function(snapshot) {
+                                                    pkgRef.getDownloadURL()
+                                                .then(function(url) {
+                                                    newData.thumbnailURL = url
+
+                                                    //load big image
+                                                    pkgRef = ref.child(newData.refImage);
+                                                    pkgRef.putString(newData.imgURI, 'data_url')
+                                                .then(function(snapshot) {
+                                                    pkgRef.getDownloadURL()
+                                                .then(function(url) {
+                                                    newData.imgURL = url
+
+                                                    db.collection("Paquetes").add(newData)
+                                                .then(function(docRef) {
+                                                    console.log("Document written with ID: ", docRef.id);
+
+                                                    data.push(newData);
+                                                    accessThis.setState({
+                                                        data,
+                                                        modalMsg: 'Paquete agregado exitosamente',
+                                                        modalType: 'success',
+                                                        showModal: true
+                                                    });
+                                                })
+                                                })
+                                                })
+                                                })
+                                                })
                                         })
-                                        // var db = firebase.firestore();
-                                        // db.collection("Paquetes").add(newData)
-                                        //     .then(function(docRef) {
-                                        //         console.log("Document written with ID: ", docRef.id);
-                                        //
-                                        //         data.push(newData);
-                                        //         this.setState({ data });
-                                        //     })
-                                        //     .catch(function(error) {
-                                        //         console.error("Error adding document: ", error);
-                                        //     });
+                                        .catch((err) => {
+
+                                            console.log(err)
+                                        })
+
+
+
+
                                         resolve()
                                     }, 1000)
                                 }),
@@ -607,17 +641,6 @@ class AdminPackages extends Component {
                         </div>
                     </div>
                 </Layout>
-
-                <Toast style={{
-                        position: 'absolute',
-                        top: 80,
-                        right: 10,}}
-                    onClose={() => this.setState({showMessage: false})} show={this.state.showMessage} delay={5000} autohide>
-                    <Toast.Header>
-                        <strong className="mr-auto"></strong>
-                    </Toast.Header>
-                    <Toast.Body>{this.state.message}</Toast.Body>
-                </Toast>
 
             </div>
         )
