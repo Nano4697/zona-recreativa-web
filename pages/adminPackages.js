@@ -9,6 +9,7 @@ import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
 import Router from 'next/router';
 import Snackbar from '@material-ui/core/Snackbar';
+import Link from 'next/link';
 
 import Resizer from 'react-image-file-resizer';
 
@@ -25,6 +26,7 @@ import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import InfoIcon from '@material-ui/icons/Info';
+import PublishIcon from '@material-ui/icons/Publish';
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 import * as firebase from "firebase/app";
@@ -79,37 +81,39 @@ class AdminPackages extends Component {
             inicioAMPM: 'am',
             activities: [],
             items: this.props.data,
-            img: {},
+            img: false,
             showModal: false,
             modalType: 'success',
             modalMsg: '',
 
+
             columns: [
-                { title: 'Imagen', field: 'thumbnail', render: rowData => (
+                { title: 'Imagen', field: 'thumbnail', filtering: false, sorting: false, render: rowData => (
                     <img
                         style={{ height: 36, width: 36, borderRadius: '50%' }}
                         src={rowData.thumbnailURL}
                     />
                     ), editComponent: props => (
-                        <input
-                            type="file"
-                            accept="image/*"
-                            value={props.value}
-                            ref={this.fileInput}
-                        />
+                        <div>
+                            <input id="icon-button-file" type="file" accept="image/*" value={props.value}  ref={this.fileInput} style={{display: 'none'}} onChange={() => {this.setState({img: true})}}/>
+                            <label htmlFor="icon-button-file">
+                                <IconButton color={this.state.img?"primary":"disabled"} aria-label="upload picture" component="span" >
+                                    <PublishIcon/>
+                                </IconButton>
+                            </label>
+                        </div>
                     )
                 },
                 { title: 'Nombre', field: 'name' },
                 { title: 'Descripción', field: 'descrip' },
-                { title: 'Capacidad', field: 'capacity', type: 'numeric' },
-                { title: 'Tipo de ruta', field: 'type', lookup: { cientifico: 'Cientifico', cultural: 'Cultural', educativo: 'Educativo', recreativo: 'Recreativo' } },
+                { title: 'Tipo de ruta', field: 'type', lookup: { cientifico: 'Cientifico', cultural: 'Cultural', educativo: 'Educativo', recreativo: 'Recreativo' }, initialEditValue: 'cientifico' },
                 { title: 'Desayuno', field: 'breakfast', type: 'boolean' },
                 { title: 'Almuerzo', field: 'lunch', type: 'boolean' },
                 { title: 'Cafe', field: 'coffe', type: 'boolean' },
-                { title: 'Precio', field: 'price', type: 'numeric' }
+                { title: 'Capacidad', field: 'capacity', type: 'numeric' },
+                { title: 'Precio', field: 'price', type: 'numeric'  }
             ]
         };
-
 
         this.fileInput = React.createRef();
 
@@ -346,7 +350,24 @@ class AdminPackages extends Component {
                                                     <LinearScale/>
                                                 </IconButton>
                                             </Tooltip>
-                                            {console.log(rowData)}
+                                            <Tooltip title="Ver paquete">
+                                                <IconButton>
+                                                    <Link href="/pPackage/[infoPkg]" as={`/pPackage/${rowData.id}`}>
+                                                        <VisibilityIcon/>
+                                                    </Link>
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Agregar fotos">
+                                                <IconButton>
+                                                    <PhotoLibraryIcon/>
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Agregar mapa">
+                                                <IconButton>
+                                                    <LocationOnIcon/>
+                                                </IconButton>
+                                            </Tooltip>
+                                            {console.log(typeof this.state.img)}
                                         </div>
                                     )
                                 },
@@ -362,16 +383,28 @@ class AdminPackages extends Component {
                                         newData['id'] = uniqid();
                                         // newData.price = '₡ ' + newData.price;
 
-                                        this.setState({
-                                            img: this.fileInput.current.files[0]
-                                        })
-
-
+                                        var img = this.fileInput.current.files[0]
 
                                         newData.refThumbnail = 'packages/' + uniqid() + '.png';
                                         newData.refImage = 'packages/' + uniqid() + '.png';
                                         newData.thumbnailURL = ''
                                         newData.imgURL = ''
+
+                                        //check if there is any empty value
+                                        if (!newData.hasOwnProperty('name'))
+                                            newData.name = ''
+                                        if (!newData.hasOwnProperty('descrip'))
+                                            newData.descrip = ''
+                                        if (!newData.hasOwnProperty('breakfast'))
+                                            newData.breakfast = false
+                                        if (!newData.hasOwnProperty('lunch'))
+                                            newData.lunch = false
+                                        if (!newData.hasOwnProperty('coffe'))
+                                            newData.coffe = false
+                                        if (!newData.hasOwnProperty('capacity'))
+                                            newData.capacity = 0
+                                        if (!newData.hasOwnProperty('price'))
+                                            newData.price = 0
 
                                         var imgURI = ''
                                         var thumbnailURI = ''
@@ -380,22 +413,27 @@ class AdminPackages extends Component {
                                         {
                                             setTimeout(() =>
                                             {
-                                                var img = this.state.img
+                                                if (typeof img !== 'undefined')
+                                                {
+                                                    Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
+                                                        uri => {
+                                                            newData.thumbnailURI= uri
 
-                                                Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
-                                                    uri => {
-                                                        newData.thumbnailURI= uri
-
-                                                        Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
-                                                            uri => {
-                                                                newData.imgURI= uri
-                                                                resolve()
-                                                            },
-                                                            'base64'
-                                                        );
-                                                    },
-                                                    'base64'
-                                                );
+                                                            Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
+                                                                uri => {
+                                                                    newData.imgURI= uri
+                                                                    resolve()
+                                                                },
+                                                                'base64'
+                                                            );
+                                                        },
+                                                        'base64'
+                                                    );
+                                                }
+                                                else
+                                                {
+                                                    reject({code: 'upload/NoImage'})
+                                                }
                                             }, 50)
                                         })
 
@@ -424,15 +462,34 @@ class AdminPackages extends Component {
                                                 .then(function(url) {
                                                     newData.imgURL = url
 
+                                                    delete newData.imgURI;
+                                                    delete newData.thumbnailURI;
+
                                                     db.collection("Paquetes").add(newData)
                                                 .then(function(docRef) {
-                                                    console.log("Document written with ID: ", docRef.id);
+                                                    // console.log("Document written with ID: ", docRef.id);
 
                                                     data.push(newData);
+                                                    var message = ''
+                                                    var typeMsg = ''
+
+                                                    if (newData.name == '' || newData.descrip == '' ||
+                                                        newData.capacity == 0 || newData.price == 0)
+                                                    {
+                                                        message = 'Paquete agregado exitosamente. Hubo uno o más campos vacíos, favor revisar'
+                                                        typeMsg = 'info'
+                                                    }
+                                                    else
+                                                    {
+                                                        message = 'Paquete agregado exitosamente.'
+                                                        typeMsg = 'success'
+                                                    }
+
+                                                    console.log(data)
                                                     accessThis.setState({
                                                         data,
-                                                        modalMsg: 'Paquete agregado exitosamente',
-                                                        modalType: 'success',
+                                                        modalMsg: message,
+                                                        modalType: typeMsg,
                                                         showModal: true
                                                     });
                                                 })
@@ -442,15 +499,53 @@ class AdminPackages extends Component {
                                                 })
                                         })
                                         .catch((err) => {
-
                                             console.log(err)
+
+                                            var ref = firebase.storage().ref();
+                                            var db = firebase.firestore();
+                                            if (err.code == 'upload/NoImage')
+                                            {
+                                                var pkgRef = ref.child('res/logoBackground.png');
+                                                pkgRef.getDownloadURL()
+                                                .then(function(url) {
+                                                    newData.thumbnailURL = url
+
+                                                    //load big image
+                                                    pkgRef = ref.child('res/logoBackgroundThumbnail.png');
+                                                    pkgRef.getDownloadURL()
+                                                .then(function(url) {
+                                                    newData.imgURL = url
+
+                                                    db.collection("Paquetes").add(newData)
+                                                .then(function(docRef) {
+                                                    console.log("Document written with ID: ", docRef.id);
+
+                                                    data.push(newData);
+                                                    accessThis.setState({
+                                                        data,
+                                                        modalMsg: 'Paquete agregado. NOTA: No se ingresó ninguna imagen',
+                                                        modalType: 'warning',
+                                                        showModal: true
+                                                    });
+                                                })
+                                                })
+                                                })
+                                            }
+                                            else
+                                            {
+                                                accessThis.setState({
+                                                    modalMsg: 'Error al crear el paquete. Intentelo más tarde.',
+                                                    modalType: 'error',
+                                                    showModal: true
+                                                });
+                                            }
                                         })
 
 
 
 
                                         resolve()
-                                    }, 1000)
+                                    }, 100)
                                 }),
                             onRowUpdate: (newData, oldData) =>
                                 new Promise((resolve, reject) =>
@@ -465,28 +560,22 @@ class AdminPackages extends Component {
                                                 newData.price = '₡ ' + newData.price;
 
                                             data[index] = newData;
+
                                             this.setState({ data }, () => resolve());
                                         }
                                         resolve()
                                     }, 1000)
                                 })
                         }}
-                        actions={[
-                            {
-                                icon: LinearScale,
-                                tooltip: 'Itinerario',
-                                onClick: (event, rowData) => {
-                                    $('#setSchedule').modal('show')
-                                    console.log(rowData)
-                                }
-                            }
-                        ]}
                         options={{
                             actionsColumnIndex: -1,
                             headerStyle: {
                                 paddingLeft: '5px',
                                 paddingRight: '5px'
-                              }
+                            },
+                            filtering: false,
+                            padding: 'dense',
+                            addRowPosition: 'first'
                         }}
                     />
 
