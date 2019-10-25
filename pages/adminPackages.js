@@ -181,7 +181,7 @@ class AdminPackages extends Component {
     loadSchedule(id)
     {
         this.setState({
-            activities: [...this.state.activities, {id: 1, descrip: "Descripcion de prueba", hora: "7", min: "00", ampm: "am"}]
+            activities: [...this.state.activities, {id: id, descrip: "Descripcion de prueba", hora: id, min: "00", ampm: "am"}]
         })
     }
 
@@ -367,7 +367,6 @@ class AdminPackages extends Component {
                                                     <LocationOnIcon/>
                                                 </IconButton>
                                             </Tooltip>
-                                            {console.log(typeof this.state.img)}
                                         </div>
                                     )
                                 },
@@ -444,7 +443,7 @@ class AdminPackages extends Component {
                                             var ref = firebase.storage().ref();
                                             var db = firebase.firestore();
 
-                                            console.log(newData)
+                                            // console.log(newData)
 
                                             // load thumbnail
                                             var pkgRef = ref.child(newData.refThumbnail);
@@ -465,7 +464,7 @@ class AdminPackages extends Component {
                                                     delete newData.imgURI;
                                                     delete newData.thumbnailURI;
 
-                                                    db.collection("Paquetes").add(newData)
+                                                    db.collection("Paquetes").doc(newData.id).set(newData)
                                                 .then(function(docRef) {
                                                     // console.log("Document written with ID: ", docRef.id);
 
@@ -485,7 +484,7 @@ class AdminPackages extends Component {
                                                         typeMsg = 'success'
                                                     }
 
-                                                    console.log(data)
+                                                    // console.log(data)
                                                     accessThis.setState({
                                                         data,
                                                         modalMsg: message,
@@ -516,7 +515,10 @@ class AdminPackages extends Component {
                                                 .then(function(url) {
                                                     newData.imgURL = url
 
-                                                    db.collection("Paquetes").add(newData)
+                                                    delete newData.imgURI;
+                                                    delete newData.thumbnailURI;
+
+                                                    db.collection("Paquetes").doc(newData.id).set(newData)
                                                 .then(function(docRef) {
                                                     console.log("Document written with ID: ", docRef.id);
 
@@ -555,13 +557,157 @@ class AdminPackages extends Component {
                                         {
                                             const data = this.state.items;
                                             const index = data.indexOf(oldData);
-
-                                            if (newData.price.charAt(0) != '₡')
-                                                newData.price = '₡ ' + newData.price;
+                                            //
+                                            // if (newData.price.charAt(0) != '₡')
+                                            //     newData.price = '₡ ' + newData.price;
 
                                             data[index] = newData;
 
-                                            this.setState({ data }, () => resolve());
+                                            // this.setState({ data }, () => resolve());
+                                            var img = this.fileInput.current.files[0]
+
+                                            if (typeof img !== 'undefined' && newData.refThumbnail == 'ref/logoBackgroundThumbnail.png')
+                                            {
+                                                newData.refThumbnail = 'packages/' + uniqid() + '.png';
+                                                newData.refImage = 'packages/' + uniqid() + '.png';
+                                                newData.thumbnailURL = ''
+                                                newData.imgURL = ''
+                                            }
+
+                                            //check if there is any empty value
+                                            if (!newData.hasOwnProperty('name'))
+                                                newData.name = ''
+                                            if (!newData.hasOwnProperty('descrip'))
+                                                newData.descrip = ''
+                                            if (!newData.hasOwnProperty('breakfast'))
+                                                newData.breakfast = false
+                                            if (!newData.hasOwnProperty('lunch'))
+                                                newData.lunch = false
+                                            if (!newData.hasOwnProperty('coffe'))
+                                                newData.coffe = false
+                                            if (!newData.hasOwnProperty('capacity'))
+                                                newData.capacity = 0
+                                            if (!newData.hasOwnProperty('price'))
+                                                newData.price = 0
+
+                                            var imgURI = ''
+                                            var thumbnailURI = ''
+
+                                            var resizeImg = new Promise((resolve, reject) =>
+                                            {
+                                                setTimeout(() =>
+                                                {
+                                                    if (typeof img !== 'undefined')
+                                                    {
+                                                        Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
+                                                            uri => {
+                                                                thumbnailURI= uri
+
+                                                                Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
+                                                                    uri => {
+                                                                        imgURI= uri
+                                                                        resolve()
+                                                                    },
+                                                                    'base64'
+                                                                );
+                                                            },
+                                                            'base64'
+                                                        );
+                                                    }
+                                                    else
+                                                    {
+                                                        reject({code: 'upload/NoImage'})
+                                                    }
+                                                }, 50)
+                                            })
+
+                                            var accessThis = this;
+
+                                            resizeImg.then((success) =>
+                                            {
+                                                var ref = firebase.storage().ref();
+                                                var db = firebase.firestore();
+
+                                                // console.log(newData)
+
+                                                // load thumbnail
+                                                var pkgRef = ref.child(newData.refThumbnail);
+                                                pkgRef.putString(thumbnailURI, 'data_url') //en caso de error agregarle el newData.*URI
+                                                    .then(function(snapshot) {
+                                                        pkgRef.getDownloadURL()
+                                                    .then(function(url) {
+                                                        newData.thumbnailURL = url
+
+                                                        //load big image
+                                                        pkgRef = ref.child(newData.refImage);
+                                                        pkgRef.putString(imgURI, 'data_url') //en caso de error agregarle el newData.*URI
+                                                    .then(function(snapshot) {
+                                                        pkgRef.getDownloadURL()
+                                                    .then(function(url) {
+                                                        newData.imgURL = url
+
+                                                        db.collection("Paquetes").doc(newData.id).set(newData)
+                                                    .then(function() {
+                                                        // console.log("Document written with ID: ", docRef.id);
+
+                                                        data.push(newData);
+                                                        var message = ''
+                                                        var typeMsg = ''
+
+                                                        if (newData.name == '' || newData.descrip == '' ||
+                                                            newData.capacity == 0 || newData.price == 0)
+                                                        {
+                                                            message = 'Paquete actualizado exitosamente. Hubo uno o más campos vacíos, favor revisar'
+                                                            typeMsg = 'info'
+                                                        }
+                                                        else
+                                                        {
+                                                            message = 'Paquete actualizado exitosamente.'
+                                                            typeMsg = 'success'
+                                                        }
+
+                                                        console.log(message, typeMsg)
+                                                        accessThis.setState({
+                                                            data,
+                                                            modalMsg: message,
+                                                            modalType: typeMsg,
+                                                            showModal: true
+                                                        });
+                                                    })
+                                                    })
+                                                    })
+                                                    })
+                                                    })
+                                            })
+                                            .catch((err) => {
+                                                console.log(err)
+
+                                                var ref = firebase.storage().ref();
+                                                var db = firebase.firestore();
+                                                if (err.code == 'upload/NoImage')
+                                                {
+                                                    db.collection("Paquetes").doc(newData.id).set(newData)
+                                                    .then(function() {
+                                                        console.log("Document with ID: ", newData.id, " updated");
+
+                                                        data.push(newData);
+                                                        accessThis.setState({
+                                                            data,
+                                                            modalMsg: 'Paquete actualizado correctamente.',
+                                                            modalType: 'success',
+                                                            showModal: true
+                                                        }, () => resolve());
+                                                    })
+                                                }
+                                                else
+                                                {
+                                                    accessThis.setState({
+                                                        modalMsg: 'Error al actualizar el paquete. Intentelo más tarde.',
+                                                        modalType: 'error',
+                                                        showModal: true
+                                                    });
+                                                }
+                                            })
                                         }
                                         resolve()
                                     }, 1000)
@@ -578,73 +724,6 @@ class AdminPackages extends Component {
                             addRowPosition: 'first'
                         }}
                     />
-
-                    {/*<div className="modal fade" id="addPkg" tabIndex="-1" role="dialog" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <form className="" onSubmit={this.firstSubmit}>
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5 className="modal-title">Nuevo paquete</h5>
-                                        <button type="button" className="close"  data-dismiss="modal" onClick={this.handleClose} aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="form-group">
-                                            <label htmlFor="name">Nombre del paquete</label>
-                                            <input className="form-control" name="name" type="text" placeholder="Nombre del paquete" value={this.state.name} onChange={this.handleInputChange} required/>
-                                        </div>
-                                        <div className="mt-2 form-group">
-                                            <label htmlFor="descrip">Descripción del paquete</label>
-                                            <textarea className="form-control" name="descrip" type="textarea" rows="2" placeholder="Descripción del paquete" value={this.state.descrip} onChange={this.handleInputChange} required/>
-                                        </div>
-                                        <label>Alimentación</label>
-                                        <div className="row justify-content-center">
-                                            <div className="form-check form-check-inline">
-                                                <input className="form-check-input" type="checkbox" name="breakfast" value={this.state.breakfast} onChange={this.handleInputChange}/>
-                                                <label className="form-check-label" htmlFor="breakfast">Desayuno</label>
-                                            </div>
-                                            <div className="form-check form-check-inline">
-                                                <input className="form-check-input" type="checkbox" name="lunch" value={this.state.lunch} onChange={this.handleInputChange}/>
-                                                <label className="form-check-label" htmlFor="lunch">Almuerzo</label>
-                                            </div>
-                                            <div className="form-check form-check-inline">
-                                                <input className="form-check-input" type="checkbox" name="coffe" value={this.state.coffe} onChange={this.handleInputChange}/>
-                                                <label className="form-check-label" htmlFor="coffe">Café/Merienda</label>
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col mt-2 form-group">
-                                                <label htmlFor="capacity">Capacidad</label>
-                                                <input className="form-control" name="capacity" type="number" min="1" placeholder="Cap. máxima" value={this.state.capacity} onChange={this.handleInputChange}/>
-                                            </div>
-                                            <div className="col px-0 mt-2 form-group">
-                                                <label htmlFor="precio">Precio</label>
-                                                <input className="form-control" name="precio" type="number" min="1" placeholder="Precio" value={this.state.precio} onChange={this.handleInputChange}/>
-                                            </div>
-                                            <div className="col mt-2 form-group">
-                                                <label htmlFor="type">Tipo de viaje</label>
-                                                <select className="form-control" placeholder="Tipo de viaje" name="type" value={this.state.type} onChange={this.handleInputChange}>
-                                                    <option value='cientifico'>Científico</option>
-                                                    <option value='cultural'>Cultural</option>
-                                                    <option value='educativo'>Educativo</option>
-                                                    <option value='recreativo'>Recreativo</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={this.handleClose}>
-                                            Cancelar
-                                        </button>
-                                        <button type="button" className="btn btn-primary" type="submit">
-                                            Siguiente
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>*/}
 
                     {/*Modal 2*/}
                     <div className="modal fade" id="setSchedule" tabIndex="-1" role="dialog" aria-hidden="true">

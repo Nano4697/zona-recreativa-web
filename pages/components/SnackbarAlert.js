@@ -15,6 +15,7 @@ const variantIcon = {
   success: CheckCircleIcon,
   error: ErrorIcon,
   warning: WarningIcon,
+  info: InfoIcon,
 };
 
 const useStyles1 = makeStyles(theme => ({
