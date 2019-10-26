@@ -10,8 +10,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Router from 'next/router';
 import Snackbar from '@material-ui/core/Snackbar';
 import Link from 'next/link';
-
 import Resizer from 'react-image-file-resizer';
+import TextField from '@material-ui/core/TextField';
 
 //Components
 import AdminNavigation from './components/AdminNavigation';
@@ -73,12 +73,12 @@ class AdminPackages extends Component {
 
         //inicializa state
         this.state = {
-            durHora: '',
-            durMin: '',
+            id: '',
+            durHora: 1,
+            durMin: 0,
+            lastActId: 0,
             descripActiv: '',
-            inicioHora: '',
-            inicioMin: '',
-            inicioAMPM: 'am',
+            inicio: '00:00',
             activities: [],
             items: this.props.data,
             img: false,
@@ -123,7 +123,6 @@ class AdminPackages extends Component {
         this.addActivity = this.addActivity.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this._onListChange = this._onListChange.bind(this);
-        this.loadSchedule = this.loadSchedule.bind(this);
         this.closeModal = this.closeModal.bind(this);
 
         this.removeActivity = this.removeActivity.bind(this);
@@ -140,7 +139,7 @@ class AdminPackages extends Component {
 
         var items = []
 
-        await db.collection("Paquetes").get().then((querySnapshot) => {
+        await db.collection("Paquetes").where("active", "==", true).get().then((querySnapshot) => {
             console.log(querySnapshot)
             querySnapshot.forEach((doc) => {
                 if (doc.exists)
@@ -181,6 +180,7 @@ class AdminPackages extends Component {
     loadSchedule(id)
     {
         this.setState({
+            id: id,
             activities: [...this.state.activities, {id: id, descrip: "Descripcion de prueba", hora: id, min: "00", ampm: "am"}]
         })
     }
@@ -225,49 +225,59 @@ class AdminPackages extends Component {
     {
         e.preventDefault();
 
-        console.log(this.state)
+        var act = this.state.activities
 
-        //Poner aqui lo que tiene que hacer el form cuando se envia la informacion
-        // let message = 'Paquete agregado';
-        // var uid = uniqid();
-        // var obj = {
-        //     id: uid,
-        //     name: this.state.name,
-        //     descrip: this.state.descrip,
-        //     breakfast: this.state.breakfast,
-        //     lunch: this.state.lunch,
-        //     coffe: this.state.coffe,
-        //     capacity: parseInt(this.state.capacity, 10),
-        //     type: this.state.type,
-        //     price: '₡ ' + this.state.precio
-        // }
-        //
-        // if (this.state.editId === -1) {
-        //     this.state.items.push(obj);
-        // } else {
-        //     this.state.items[this.state.editId] = obj;
-        //     message = 'Cambios guardados';
-        // }
-        //
-        // //Reincia los inputs
-        // this.setState({
-        //     name: '',
-        //     descrip: '',
-        //     breakfast: false,
-        //     precio: '',
-        //     lunch: false,
-        //     coffe: false,
-        //     capacity: 0,
-        //     tipoRuta: '',
-        //     durHora: 0,
-        //     durMin: 0,
-        //     descItiner: '',
-        //     showModal: false,
-        //     showMessage: true,
-        //     message: message
-        // });
-        //
-        // $('#setSchedule').modal('hide')
+        var time = new Date("2000-01-01T" + this.state.inicio)
+
+        var sched = act.map((i) => {
+            var result = {
+                text: i.descrip,
+                time: time.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
+           .replace(/(:\d{2}| [AP]M)$/, ""),
+                duracion: (i.hora>0?(i.hora+" hora(s) "):"") + i.min + " minutos"
+            }
+            console.log(i.min, (parseInt(i.hora)*60 + parseInt(i.min)))
+            time = new Date(time.getTime() + (parseInt(i.hora)*60 + parseInt(i.min))*60000);
+            return result
+        })
+
+        var db = firebase.firestore();
+        var accessThis = this;
+
+        // load thumbnail
+        db.collection("Itinerario").doc(this.state.id).set({
+                id: this.state.id,
+                schedule: sched
+            }, { merge: true })
+        .then(function() {
+            // console.log("Document written with ID: ", docRef.id);
+
+            var message = 'Itinerario agregado exitosamente.'
+            var typeMsg = 'success'
+
+            accessThis.setState({
+                modalMsg: message,
+                modalType: typeMsg,
+                showModal: true,
+                descripActiv: '',
+                durHora: 1,
+                durMin: 0,
+                inicio: '07:00'
+            });
+        })
+        .catch((err) => {
+            accessThis.setState({
+                modalMsg: 'Error al crear el itinerario. Intentelo más tarde.',
+                modalType: 'error',
+                showModal: true,
+                descripActiv: '',
+                durHora: 1,
+                durMin: 0,
+                inicio: '07:00'
+            });
+        })
+
+        console.log(sched)
     }
 
     handleClose(e)
@@ -346,7 +356,7 @@ class AdminPackages extends Component {
                                     return (
                                         <div className="row justify-content-center">
                                             <Tooltip title="Agregar itinerario">
-                                                <IconButton aria-label="agregar itinerario" data-toggle="modal" data-target="#setSchedule" onClick={this.loadSchedule}>
+                                                <IconButton aria-label="agregar itinerario" data-toggle="modal" data-target="#setSchedule" onClick={this.loadSchedule.bind(this, rowData.id)}>
                                                     <LinearScale/>
                                                 </IconButton>
                                             </Tooltip>
@@ -376,341 +386,367 @@ class AdminPackages extends Component {
                             onRowAdd: newData =>
                                 new Promise((resolve, reject) =>
                                 {
-                                    setTimeout(() =>
+                                    const data = this.state.items;
+                                    newData['id'] = uniqid();
+                                    // newData.price = '₡ ' + newData.price;
+
+                                    var img = this.fileInput.current.files[0]
+
+                                    newData.refThumbnail = 'packages/' + uniqid() + '.png';
+                                    newData.refImage = 'packages/' + uniqid() + '.png';
+                                    newData.thumbnailURL = ''
+                                    newData.imgURL = ''
+
+                                    //check if there is any empty value
+                                    if (!newData.hasOwnProperty('name'))
+                                        newData.name = ''
+                                    if (!newData.hasOwnProperty('descrip'))
+                                        newData.descrip = ''
+                                    if (!newData.hasOwnProperty('breakfast'))
+                                        newData.breakfast = false
+                                    if (!newData.hasOwnProperty('lunch'))
+                                        newData.lunch = false
+                                    if (!newData.hasOwnProperty('coffe'))
+                                        newData.coffe = false
+                                    if (!newData.hasOwnProperty('capacity'))
+                                        newData.capacity = 0
+                                    if (!newData.hasOwnProperty('price'))
+                                        newData.price = 0
+
+                                    newData.active = true
+
+                                    var imgURI = ''
+                                    var thumbnailURI = ''
+
+                                    var resizeImg = new Promise((resolve, reject) =>
                                     {
-                                        const data = this.state.items;
-                                        newData['id'] = uniqid();
-                                        // newData.price = '₡ ' + newData.price;
-
-                                        var img = this.fileInput.current.files[0]
-
-                                        newData.refThumbnail = 'packages/' + uniqid() + '.png';
-                                        newData.refImage = 'packages/' + uniqid() + '.png';
-                                        newData.thumbnailURL = ''
-                                        newData.imgURL = ''
-
-                                        //check if there is any empty value
-                                        if (!newData.hasOwnProperty('name'))
-                                            newData.name = ''
-                                        if (!newData.hasOwnProperty('descrip'))
-                                            newData.descrip = ''
-                                        if (!newData.hasOwnProperty('breakfast'))
-                                            newData.breakfast = false
-                                        if (!newData.hasOwnProperty('lunch'))
-                                            newData.lunch = false
-                                        if (!newData.hasOwnProperty('coffe'))
-                                            newData.coffe = false
-                                        if (!newData.hasOwnProperty('capacity'))
-                                            newData.capacity = 0
-                                        if (!newData.hasOwnProperty('price'))
-                                            newData.price = 0
-
-                                        var imgURI = ''
-                                        var thumbnailURI = ''
-
-                                        var resizeImg = new Promise((resolve, reject) =>
+                                        setTimeout(() =>
                                         {
-                                            setTimeout(() =>
+                                            if (typeof img !== 'undefined')
                                             {
-                                                if (typeof img !== 'undefined')
-                                                {
-                                                    Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
-                                                        uri => {
-                                                            newData.thumbnailURI= uri
+                                                Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
+                                                    uri => {
+                                                        newData.thumbnailURI= uri
 
-                                                            Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
-                                                                uri => {
-                                                                    newData.imgURI= uri
-                                                                    resolve()
-                                                                },
-                                                                'base64'
-                                                            );
-                                                        },
-                                                        'base64'
-                                                    );
-                                                }
-                                                else
-                                                {
-                                                    reject({code: 'upload/NoImage'})
-                                                }
-                                            }, 50)
-                                        })
-
-                                        var accessThis = this;
-
-                                        resizeImg.then((success) =>
-                                        {
-                                            var ref = firebase.storage().ref();
-                                            var db = firebase.firestore();
-
-                                            // console.log(newData)
-
-                                            // load thumbnail
-                                            var pkgRef = ref.child(newData.refThumbnail);
-                                            pkgRef.putString(newData.thumbnailURI, 'data_url')
-                                                .then(function(snapshot) {
-                                                    pkgRef.getDownloadURL()
-                                                .then(function(url) {
-                                                    newData.thumbnailURL = url
-
-                                                    //load big image
-                                                    pkgRef = ref.child(newData.refImage);
-                                                    pkgRef.putString(newData.imgURI, 'data_url')
-                                                .then(function(snapshot) {
-                                                    pkgRef.getDownloadURL()
-                                                .then(function(url) {
-                                                    newData.imgURL = url
-
-                                                    delete newData.imgURI;
-                                                    delete newData.thumbnailURI;
-
-                                                    db.collection("Paquetes").doc(newData.id).set(newData)
-                                                .then(function(docRef) {
-                                                    // console.log("Document written with ID: ", docRef.id);
-
-                                                    data.push(newData);
-                                                    var message = ''
-                                                    var typeMsg = ''
-
-                                                    if (newData.name == '' || newData.descrip == '' ||
-                                                        newData.capacity == 0 || newData.price == 0)
-                                                    {
-                                                        message = 'Paquete agregado exitosamente. Hubo uno o más campos vacíos, favor revisar'
-                                                        typeMsg = 'info'
-                                                    }
-                                                    else
-                                                    {
-                                                        message = 'Paquete agregado exitosamente.'
-                                                        typeMsg = 'success'
-                                                    }
-
-                                                    // console.log(data)
-                                                    accessThis.setState({
-                                                        data,
-                                                        modalMsg: message,
-                                                        modalType: typeMsg,
-                                                        showModal: true
-                                                    });
-                                                })
-                                                })
-                                                })
-                                                })
-                                                })
-                                        })
-                                        .catch((err) => {
-                                            console.log(err)
-
-                                            var ref = firebase.storage().ref();
-                                            var db = firebase.firestore();
-                                            if (err.code == 'upload/NoImage')
-                                            {
-                                                var pkgRef = ref.child('res/logoBackground.png');
-                                                pkgRef.getDownloadURL()
-                                                .then(function(url) {
-                                                    newData.thumbnailURL = url
-
-                                                    //load big image
-                                                    pkgRef = ref.child('res/logoBackgroundThumbnail.png');
-                                                    pkgRef.getDownloadURL()
-                                                .then(function(url) {
-                                                    newData.imgURL = url
-
-                                                    delete newData.imgURI;
-                                                    delete newData.thumbnailURI;
-
-                                                    db.collection("Paquetes").doc(newData.id).set(newData)
-                                                .then(function(docRef) {
-                                                    console.log("Document written with ID: ", docRef.id);
-
-                                                    data.push(newData);
-                                                    accessThis.setState({
-                                                        data,
-                                                        modalMsg: 'Paquete agregado. NOTA: No se ingresó ninguna imagen',
-                                                        modalType: 'warning',
-                                                        showModal: true
-                                                    });
-                                                })
-                                                })
-                                                })
+                                                        Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
+                                                            uri => {
+                                                                newData.imgURI= uri
+                                                                resolve()
+                                                            },
+                                                            'base64'
+                                                        );
+                                                    },
+                                                    'base64'
+                                                );
                                             }
                                             else
                                             {
-                                                accessThis.setState({
-                                                    modalMsg: 'Error al crear el paquete. Intentelo más tarde.',
-                                                    modalType: 'error',
-                                                    showModal: true
-                                                });
+                                                reject({code: 'upload/NoImage'})
                                             }
-                                        })
+                                        }, 50)
+                                    })
 
+                                    var accessThis = this;
 
+                                    resizeImg.then((success) =>
+                                    {
+                                        var ref = firebase.storage().ref();
+                                        var db = firebase.firestore();
 
+                                        // console.log(newData)
 
-                                        resolve()
-                                    }, 100)
+                                        // load thumbnail
+                                        var pkgRef = ref.child(newData.refThumbnail);
+                                        pkgRef.putString(newData.thumbnailURI, 'data_url')
+                                            .then(function(snapshot) {
+                                                pkgRef.getDownloadURL()
+                                            .then(function(url) {
+                                                newData.thumbnailURL = url
+
+                                                //load big image
+                                                pkgRef = ref.child(newData.refImage);
+                                                pkgRef.putString(newData.imgURI, 'data_url')
+                                            .then(function(snapshot) {
+                                                pkgRef.getDownloadURL()
+                                            .then(function(url) {
+                                                newData.imgURL = url
+
+                                                delete newData.imgURI;
+                                                delete newData.thumbnailURI;
+
+                                                db.collection("Paquetes").doc(newData.id).set(newData)
+                                            .then(function(docRef) {
+                                                // console.log("Document written with ID: ", docRef.id);
+
+                                                data.push(newData);
+                                                var message = ''
+                                                var typeMsg = ''
+
+                                                if (newData.name == '' || newData.descrip == '' ||
+                                                    newData.capacity == 0 || newData.price == 0)
+                                                {
+                                                    message = 'Paquete agregado exitosamente. Hubo uno o más campos vacíos, favor revisar'
+                                                    typeMsg = 'info'
+                                                }
+                                                else
+                                                {
+                                                    message = 'Paquete agregado exitosamente.'
+                                                    typeMsg = 'success'
+                                                }
+
+                                                // console.log(data)
+                                                accessThis.setState({
+                                                    data,
+                                                    modalMsg: message,
+                                                    modalType: typeMsg,
+                                                    showModal: true
+                                                }, () => resolve());
+                                            })
+                                            })
+                                            })
+                                            })
+                                            })
+                                    })
+                                    .catch((err) => {
+                                        console.log(err)
+
+                                        var ref = firebase.storage().ref();
+                                        var db = firebase.firestore();
+                                        if (err.code == 'upload/NoImage')
+                                        {
+                                            var pkgRef = ref.child('res/logoBackground.png');
+                                            pkgRef.getDownloadURL()
+                                            .then(function(url) {
+                                                newData.thumbnailURL = url
+
+                                                //load big image
+                                                pkgRef = ref.child('res/logoBackgroundThumbnail.png');
+                                                pkgRef.getDownloadURL()
+                                            .then(function(url) {
+                                                newData.imgURL = url
+
+                                                delete newData.imgURI;
+                                                delete newData.thumbnailURI;
+
+                                                db.collection("Paquetes").doc(newData.id).set(newData)
+                                            .then(function(docRef) {
+                                                console.log("Document written with ID: ", docRef.id);
+
+                                                data.push(newData);
+                                                accessThis.setState({
+                                                    data,
+                                                    modalMsg: 'Paquete agregado. NOTA: No se ingresó ninguna imagen',
+                                                    modalType: 'warning',
+                                                    showModal: true
+                                                }, () => resolve());
+                                            })
+                                            })
+                                            })
+                                        }
+                                        else
+                                        {
+                                            accessThis.setState({
+                                                modalMsg: 'Error al crear el paquete. Intentelo más tarde.',
+                                                modalType: 'error',
+                                                showModal: true
+                                            }, () => reject());
+                                        }
+                                    })
                                 }),
                             onRowUpdate: (newData, oldData) =>
                                 new Promise((resolve, reject) =>
                                 {
-                                    setTimeout(() =>
+                                    const data = this.state.items;
+                                    const index = data.indexOf(oldData);
+                                    //
+                                    // if (newData.price.charAt(0) != '₡')
+                                    //     newData.price = '₡ ' + newData.price;
+
+                                    data[index] = newData;
+
+                                    // this.setState({ data }, () => resolve());
+                                    var img = this.fileInput.current.files[0]
+
+                                    if (typeof img !== 'undefined' && newData.refThumbnail == 'ref/logoBackgroundThumbnail.png')
                                     {
+                                        newData.refThumbnail = 'packages/' + uniqid() + '.png';
+                                        newData.refImage = 'packages/' + uniqid() + '.png';
+                                        newData.thumbnailURL = ''
+                                        newData.imgURL = ''
+                                    }
+
+                                    //check if there is any empty value
+                                    if (!newData.hasOwnProperty('name'))
+                                        newData.name = ''
+                                    if (!newData.hasOwnProperty('descrip'))
+                                        newData.descrip = ''
+                                    if (!newData.hasOwnProperty('breakfast'))
+                                        newData.breakfast = false
+                                    if (!newData.hasOwnProperty('lunch'))
+                                        newData.lunch = false
+                                    if (!newData.hasOwnProperty('coffe'))
+                                        newData.coffe = false
+                                    if (!newData.hasOwnProperty('capacity'))
+                                        newData.capacity = 0
+                                    if (!newData.hasOwnProperty('price'))
+                                        newData.price = 0
+
+                                    var imgURI = ''
+                                    var thumbnailURI = ''
+
+                                    var resizeImg = new Promise((resolve, reject) =>
+                                    {
+                                        setTimeout(() =>
                                         {
-                                            const data = this.state.items;
-                                            const index = data.indexOf(oldData);
-                                            //
-                                            // if (newData.price.charAt(0) != '₡')
-                                            //     newData.price = '₡ ' + newData.price;
-
-                                            data[index] = newData;
-
-                                            // this.setState({ data }, () => resolve());
-                                            var img = this.fileInput.current.files[0]
-
-                                            if (typeof img !== 'undefined' && newData.refThumbnail == 'ref/logoBackgroundThumbnail.png')
+                                            if (typeof img !== 'undefined')
                                             {
-                                                newData.refThumbnail = 'packages/' + uniqid() + '.png';
-                                                newData.refImage = 'packages/' + uniqid() + '.png';
-                                                newData.thumbnailURL = ''
-                                                newData.imgURL = ''
-                                            }
+                                                Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
+                                                    uri => {
+                                                        thumbnailURI= uri
 
-                                            //check if there is any empty value
-                                            if (!newData.hasOwnProperty('name'))
-                                                newData.name = ''
-                                            if (!newData.hasOwnProperty('descrip'))
-                                                newData.descrip = ''
-                                            if (!newData.hasOwnProperty('breakfast'))
-                                                newData.breakfast = false
-                                            if (!newData.hasOwnProperty('lunch'))
-                                                newData.lunch = false
-                                            if (!newData.hasOwnProperty('coffe'))
-                                                newData.coffe = false
-                                            if (!newData.hasOwnProperty('capacity'))
-                                                newData.capacity = 0
-                                            if (!newData.hasOwnProperty('price'))
-                                                newData.price = 0
-
-                                            var imgURI = ''
-                                            var thumbnailURI = ''
-
-                                            var resizeImg = new Promise((resolve, reject) =>
-                                            {
-                                                setTimeout(() =>
-                                                {
-                                                    if (typeof img !== 'undefined')
-                                                    {
-                                                        Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
+                                                        Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
                                                             uri => {
-                                                                thumbnailURI= uri
-
-                                                                Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
-                                                                    uri => {
-                                                                        imgURI= uri
-                                                                        resolve()
-                                                                    },
-                                                                    'base64'
-                                                                );
+                                                                imgURI= uri
+                                                                resolve()
                                                             },
                                                             'base64'
                                                         );
-                                                    }
-                                                    else
-                                                    {
-                                                        reject({code: 'upload/NoImage'})
-                                                    }
-                                                }, 50)
-                                            })
-
-                                            var accessThis = this;
-
-                                            resizeImg.then((success) =>
+                                                    },
+                                                    'base64'
+                                                );
+                                            }
+                                            else
                                             {
-                                                var ref = firebase.storage().ref();
-                                                var db = firebase.firestore();
+                                                reject({code: 'upload/NoImage'})
+                                            }
+                                        }, 50)
+                                    })
 
-                                                // console.log(newData)
+                                    var accessThis = this;
 
-                                                // load thumbnail
-                                                var pkgRef = ref.child(newData.refThumbnail);
-                                                pkgRef.putString(thumbnailURI, 'data_url') //en caso de error agregarle el newData.*URI
-                                                    .then(function(snapshot) {
-                                                        pkgRef.getDownloadURL()
-                                                    .then(function(url) {
-                                                        newData.thumbnailURL = url
+                                    resizeImg.then((success) =>
+                                    {
+                                        var ref = firebase.storage().ref();
+                                        var db = firebase.firestore();
 
-                                                        //load big image
-                                                        pkgRef = ref.child(newData.refImage);
-                                                        pkgRef.putString(imgURI, 'data_url') //en caso de error agregarle el newData.*URI
-                                                    .then(function(snapshot) {
-                                                        pkgRef.getDownloadURL()
-                                                    .then(function(url) {
-                                                        newData.imgURL = url
+                                        // console.log(newData)
 
-                                                        db.collection("Paquetes").doc(newData.id).set(newData)
-                                                    .then(function() {
-                                                        // console.log("Document written with ID: ", docRef.id);
+                                        // load thumbnail
+                                        var pkgRef = ref.child(newData.refThumbnail);
+                                        pkgRef.putString(thumbnailURI, 'data_url') //en caso de error agregarle el newData.*URI
+                                            .then(function(snapshot) {
+                                                pkgRef.getDownloadURL()
+                                            .then(function(url) {
+                                                newData.thumbnailURL = url
 
-                                                        data.push(newData);
-                                                        var message = ''
-                                                        var typeMsg = ''
+                                                //load big image
+                                                pkgRef = ref.child(newData.refImage);
+                                                pkgRef.putString(imgURI, 'data_url') //en caso de error agregarle el newData.*URI
+                                            .then(function(snapshot) {
+                                                pkgRef.getDownloadURL()
+                                            .then(function(url) {
+                                                newData.imgURL = url
 
-                                                        if (newData.name == '' || newData.descrip == '' ||
-                                                            newData.capacity == 0 || newData.price == 0)
-                                                        {
-                                                            message = 'Paquete actualizado exitosamente. Hubo uno o más campos vacíos, favor revisar'
-                                                            typeMsg = 'info'
-                                                        }
-                                                        else
-                                                        {
-                                                            message = 'Paquete actualizado exitosamente.'
-                                                            typeMsg = 'success'
-                                                        }
+                                                db.collection("Paquetes").doc(newData.id).set(newData)
+                                            .then(function() {
+                                                // console.log("Document written with ID: ", docRef.id);
 
-                                                        console.log(message, typeMsg)
-                                                        accessThis.setState({
-                                                            data,
-                                                            modalMsg: message,
-                                                            modalType: typeMsg,
-                                                            showModal: true
-                                                        });
-                                                    })
-                                                    })
-                                                    })
-                                                    })
-                                                    })
-                                            })
-                                            .catch((err) => {
-                                                console.log(err)
+                                                data.push(newData);
+                                                var message = ''
+                                                var typeMsg = ''
 
-                                                var ref = firebase.storage().ref();
-                                                var db = firebase.firestore();
-                                                if (err.code == 'upload/NoImage')
+                                                if (newData.name == '' || newData.descrip == '' ||
+                                                    newData.capacity == 0 || newData.price == 0)
                                                 {
-                                                    db.collection("Paquetes").doc(newData.id).set(newData)
-                                                    .then(function() {
-                                                        console.log("Document with ID: ", newData.id, " updated");
-
-                                                        data.push(newData);
-                                                        accessThis.setState({
-                                                            data,
-                                                            modalMsg: 'Paquete actualizado correctamente.',
-                                                            modalType: 'success',
-                                                            showModal: true
-                                                        }, () => resolve());
-                                                    })
+                                                    message = 'Paquete actualizado exitosamente. Hubo uno o más campos vacíos, favor revisar'
+                                                    typeMsg = 'info'
                                                 }
                                                 else
                                                 {
-                                                    accessThis.setState({
-                                                        modalMsg: 'Error al actualizar el paquete. Intentelo más tarde.',
-                                                        modalType: 'error',
-                                                        showModal: true
-                                                    });
+                                                    message = 'Paquete actualizado exitosamente.'
+                                                    typeMsg = 'success'
                                                 }
+
+                                                // console.log(message, typeMsg)
+                                                accessThis.setState({
+                                                    data,
+                                                    modalMsg: message,
+                                                    modalType: typeMsg,
+                                                    showModal: true
+                                                }, () => resolve());
+                                            })
+                                            })
+                                            })
+                                            })
+                                            })
+                                    })
+                                    .catch((err) => {
+                                        console.log(err)
+
+                                        var ref = firebase.storage().ref();
+                                        var db = firebase.firestore();
+                                        if (err.code == 'upload/NoImage')
+                                        {
+                                            db.collection("Paquetes").doc(newData.id).set(newData)
+                                            .then(function() {
+                                                // console.log("Document with ID: ", newData.id, " updated");
+
+                                                data.push(newData);
+                                                accessThis.setState({
+                                                    data,
+                                                    modalMsg: 'Paquete actualizado correctamente.',
+                                                    modalType: 'success',
+                                                    showModal: true
+                                                }, () => resolve());
                                             })
                                         }
-                                        resolve()
-                                    }, 1000)
+                                        else
+                                        {
+                                            accessThis.setState({
+                                                modalMsg: 'Error al actualizar el paquete. Intentelo más tarde.',
+                                                modalType: 'error',
+                                                showModal: true
+                                            }, () => reject());
+                                        }
+                                    })
+                                }),
+                            onRowDelete: oldData =>
+                                new Promise((resolve, reject) =>
+                                {
+                                    const data = this.state.items;
+                                    const index = data.indexOf(oldData);
+
+                                    var db = firebase.firestore();
+                                    var accessThis = this;
+
+                                    console.log(oldData)
+
+                                    // load thumbnail
+                                    db.collection("Paquetes").doc(oldData.id).set({
+                                            active: false
+                                        }, { merge: true })
+                                    .then(function() {
+                                        // console.log("Document written with ID: ", docRef.id);
+
+                                        data.splice(index, 1);
+
+                                        var message = 'Paquete eliminado exitosamente.'
+                                        var typeMsg = 'success'
+
+                                        accessThis.setState({
+                                            data,
+                                            modalMsg: message,
+                                            modalType: typeMsg,
+                                            showModal: true
+                                        }, () => resolve());
+                                    })
+                                    .catch((err) => {
+                                        accessThis.setState({
+                                            modalMsg: 'Error al eliminar el paquete. Intentelo más tarde.',
+                                            modalType: 'error',
+                                            showModal: true
+                                        }, () => reject());
+                                    })
                                 })
                         }}
                         options={{
@@ -740,43 +776,63 @@ class AdminPackages extends Component {
                                         <label>Hora de inicio del viaje</label>
                                         <div className="row justify-content-center form-inline">
                                             <div className="input-group mx-1">
-                                                <input className="form-control" name="inicioHora" type="number" min="0" max="12" value={this.state.inicioHora} onChange={this.handleInputChange}/>
-                                                <div className="input-group-append">
-                                                    <span className="input-group-text" id="hour-addon2">Hora</span>
-                                                </div>
-                                            </div>
-                                            <div className="input-group mx-1">
-                                                <input className="form-control" name="inicioMin" type="number" min="0" max="59" value={this.state.inicioMin} onChange={this.handleInputChange}/>
-                                                <div className="input-group-append">
-                                                    <span className="input-group-text" id="min-addon2">Minuto</span>
-                                                </div>
-                                            </div>
-                                            <div className="input-group mx-1">
-                                                <select className="form-control" placeholder="Tipo de viaje" name="inicioAMPM" value={this.state.inicioAMPM} onChange={this.handleInputChange}>
-                                                    <option>AM</option>
-                                                    <option>PM</option>
-                                                </select>
+                                                <TextField
+                                                    name="inicio"
+                                                    type="time"
+                                                    value={this.state.inicio}
+                                                    onChange={this.handleInputChange}
+                                                    InputLabelProps={{
+                                                      shrink: true,
+                                                    }}
+                                                    inputProps={{
+                                                      step: 300, // 5 min
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                         <label className="mt-3">Agregar actividades</label>
                                         <div className="border border-primary rounded pb-2 px-2">
                                             <div className="form-group">
-                                                <label htmlFor="descripActiv">Descripción de la actividad</label>
-                                                <textarea className="form-control" name="descripActiv" type="textarea" rows="2" placeholder="Breve Descripción de la actividad" value={this.state.descripActiv} onChange={this.handleInputChange}/>
+                                                <TextField
+                                                    name="descripActiv"
+                                                    label="Descripción de la actividad"
+                                                    placeholder=""
+                                                    multiline
+                                                    margin="normal"
+                                                    fullWidth
+                                                    value={this.state.descripActiv}
+                                                    onChange={this.handleInputChange}
+                                                />
                                             </div>
                                             <label>Duración estimada de la actividad</label>
                                             <div className="row justify-content-center form-inline">
-                                                <div className="input-group mx-1">
-                                                    <input className="form-control" name="durHora" type="number" min="1" max="12" value={this.state.durHora} onChange={this.handleInputChange}/>
-                                                    <div className="input-group-append">
-                                                        <span className="input-group-text" id="hour-addon2">Hora</span>
-                                                    </div>
+                                                <div className="input-group mx-1 col-4">
+                                                    <TextField
+                                                        name="durHora"
+                                                        label="Hora(s)"
+                                                        value={this.state.durHora}
+                                                        min="1" max="12"
+                                                        onChange={this.handleInputChange}
+                                                        type="number"
+                                                        InputLabelProps={{
+                                                          shrink: true,
+                                                        }}
+                                                        margin="normal"
+                                                    />
                                                 </div>
-                                                <div className="input-group mx-1">
-                                                    <input className="form-control" name="durMin" type="number" min="0" max="59" value={this.state.durMin} onChange={this.handleInputChange}/>
-                                                    <div className="input-group-append">
-                                                        <span className="input-group-text" id="min-addon2">Minuto</span>
-                                                    </div>
+                                                <div className="input-group mx-1 col-4">
+                                                    <TextField
+                                                        name="durMin"
+                                                        label="Minutos"
+                                                        value={this.state.durMin}
+                                                        min="0" max="59"
+                                                        onChange={this.handleInputChange}
+                                                        type="number"
+                                                        InputLabelProps={{
+                                                          shrink: true,
+                                                        }}
+                                                        margin="normal"
+                                                    />
                                                 </div>
                                                 <div className="row justify-content-end pr-3">
                                                     <button type="button" className="btn btn-primary ml-3 m-2 rounded-circle" style={{height: "50px"}} onClick={this.addActivity}>

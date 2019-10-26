@@ -43,6 +43,7 @@
     "react-markdown": "^4.1.0",
     "react-multi-carousel": "^2.2.10",
     "react-native-timeline": "^1.0.1",
+    "react-time-picker": "^3.7.2",
     "react-timeline-scribble": "^1.0.14",
     "resize-img": "^2.0.0",
     "serverless-mysql": "^1.5.1",

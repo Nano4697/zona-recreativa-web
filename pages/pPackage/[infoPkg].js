@@ -36,7 +36,8 @@ class infoPkg extends Component {
 
         this.state = {
             errorCode: props.errorCode,
-            data: {}
+            data: {},
+            schedule: []
         }
 
         if (!firebase.apps.length) {
@@ -51,10 +52,21 @@ class infoPkg extends Component {
                     if (doc.exists)
                     {
                         this.state.data = doc.data();
+
+                        db.collection("Itinerario").where("id", "==", props.info)
+                        .get()
+                        .then((querySnapshot) => {
+                            querySnapshot.forEach((doc) => {
+                                if (doc.exists)
+                                {
+                                    this.state.schedule = doc.data().schedule
+                                }
+                                this.forceUpdate();
+                            });
+                        })
                         console.log(this.state)
                     }
                 });
-                this.forceUpdate();
             })
             .catch((err) => {
                 this.state.errorCode = 204;
@@ -101,6 +113,8 @@ class infoPkg extends Component {
         {
             var info = this.state.data
 
+            console.log(this.state.schedule)
+
             var breakfast = info.breakfast?<img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fbreakfast.svg?alt=media&token=11a937c9-76f4-4917-b389-d071c8129957" className="col-2" title="El desayuno puede ser: Emparedado, Frutas, Torta de huevo"/>:''
 
             var lunch = info.lunch?<img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fburger.svg?alt=media&token=1c9f65f2-f922-4fee-986e-a1213b32c6fe" className="col-2" title="El aalmuerzo puede ser: Emparedado, Burrito, Perro caliente"/>:''
@@ -114,7 +128,7 @@ class infoPkg extends Component {
                 <h1 className="pt-4 text-center mb-4">{info.name}</h1>
                 <div className="container mb-3 mx-auto pt-sm-auto col-10 ">
                     <div className="row">
-                        <div className="container col-md-7 col-sm-12 pr-4 mt-md-3 mt-1">
+                        <div className="container col-md-5 col-sm-12 pr-4 mt-md-3 mt-1">
                             <h3 className="row mb-3">
                                 Descripción
                             </h3>
@@ -137,11 +151,11 @@ class infoPkg extends Component {
                                 {note}
                             </div>
                         </div>
-                        <div className="col-md-5 col-sm-11 col-11 pl-sm-4 pl-0 mt-3">
+                        <div className="col-md-6 col-sm-11 col-11 pl-sm-4 pl-0 mt-3">
                             <h3 className="mb-3">
                                 Itinerario
                             </h3>
-                            <Timeline info={info.schedule}/>
+                            <Timeline info={this.state.schedule}/>
                             <h3 className="mb-3">
                                 Capacidad
                             </h3>

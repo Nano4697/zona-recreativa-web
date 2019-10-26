@@ -36,7 +36,7 @@ Also you'll need the following packages:
 
 `npm i react-image-file-resizer`
 
-`npm i resize-img`
+`npm i react-time-picker`
 
 ## About
 
