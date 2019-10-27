@@ -15,8 +15,7 @@ import TextField from '@material-ui/core/TextField';
 import regeneratorRuntime from "regenerator-runtime";
 import {DropzoneDialog} from 'material-ui-dropzone';
 
-import LoadingOverlay from 'react-loading-overlay'
-import CircularProgress from '@material-ui/core/CircularProgress';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 //Components
 import AdminNavigation from './components/AdminNavigation';
@@ -28,6 +27,7 @@ import SnackbarAlert from './components/SnackbarAlert'
 import AddIcon from '@material-ui/icons/Add';
 import LinearScale from '@material-ui/icons/LinearScale';
 import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
+import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import InfoIcon from '@material-ui/icons/Info';
@@ -41,10 +41,10 @@ import "firebase/auth";
 import "firebase/firestore";
 import "firebase/storage";
 
-import { initFirebase } from './lib/firebase/firebase'
+import { initFirebase } from './lib/firebase'
 
 var ReactDOM = require('react-dom');
-var uniqid = require('uniqid');
+const uuidv1 = require('uuid/v1');
 
 var firebase;
 
@@ -71,6 +71,7 @@ class AdminPackages extends Component {
             openImgLoad: false,
             images: [],
             uploading: false,
+            progress: 0,
 
 
             columns: [
@@ -139,7 +140,6 @@ class AdminPackages extends Component {
         this.closeModal = this.closeModal.bind(this);
         this.handleSubmitImages = this.handleSubmitImages.bind(this);
         this.handleCloseImageLoad = this.handleCloseImageLoad.bind(this);
-        this.handleOpenImageLoad = this.handleOpenImageLoad.bind(this);
         this.handleLoadImages = this.handleLoadImages.bind(this);
 
         this.removeActivity = this.removeActivity.bind(this);
@@ -184,9 +184,7 @@ class AdminPackages extends Component {
 
     handleLoadImages(files)
     {
-        this.setState({
-            files: files
-        });
+        console.log(files)
     }
 
     handleCloseImageLoad()
@@ -196,25 +194,69 @@ class AdminPackages extends Component {
         });
     }
 
-    handleOpenImageLoad() {
+    handleOpenImageLoad(id)
+    {
         this.setState({
-            openImgLoad: true,
+            id: id,
+            openImgLoad: true
         });
     }
 
     handleSubmitImages(files)
     {
         this.setState({
-        openImgLoad: false,
-            uploading: true
+            uploading: true,
+            progress: 0,
         });
-        setTimeout(() =>
-        {
-            this.setState({
-            images: files,
-            uploading: false
+
+        var total = files.length;
+        var ref = firebase.storage().ref();
+        var db = firebase.firestore();
+
+        var refs = []
+
+        var accessThis = this;
+
+        Promise.all(files.map( (file, i) => {
+            var imgRef = 'packages/'+ accessThis.state.id + '/' + accessThis.state.id + '_' + i + '.png'
+            refs.push(imgRef)
+            var refChild = ref.child(imgRef)
+
+            var uploadTask = refChild.put(file)
+
+            uploadTask.on('state_changed', null, null, function() {
+                accessThis.setState({
+                    progress: accessThis.state.progress + 100/total
+                })
             });
-        }, 5000)
+
+            return uploadTask.then(function(snapshot) {
+                    return snapshot.ref.getDownloadURL()
+                })
+            }
+        ))
+        .then((values) => {
+            console.log(values)
+
+            db.collection("ImagenesPaquetes").doc(accessThis.state.id).set( {id: accessThis.state.id, imgs: values, refs: refs})
+            .then(function() {
+                // console.log("Document written with ID: ", docRef.id);
+                var message = 'Imagenes cargadas exitosamente.'
+                var typeMsg = 'success'
+
+                setTimeout(() =>
+                {
+                    accessThis.setState({
+                        modalMsg: message,
+                        modalType: typeMsg,
+                        showModal: true,
+                        openImgLoad: false,
+                        images: [],
+                        uploading: false
+                    });
+                }, 1000);
+            })
+        })
     }
 
     loadSchedule(id)
@@ -372,7 +414,8 @@ class AdminPackages extends Component {
 
     render()
     {
-        return(
+        var title = this.state.uploading?<div>Subir imagenes <LinearProgress variant="determinate" value={this.state.progress}/></div>:<div>Subir imagenes</div>
+        return (
             <div>
                 <AdminNavigation />
                 <Layout>
@@ -398,16 +441,6 @@ class AdminPackages extends Component {
                         />
                       </Snackbar>
 
-                      <LoadingOverlay
-                          active={this.state.uploading}
-                          spinner={<CircularProgress />}
-                          styles={{
-                        overlay: (base) => ({
-                          ...base,
-                          background: 'rgba(120, 120, 120, 0.5)'
-                        })
-                      }}
-                      >
                     <MaterialTable
                         title=''
                         columns={this.state.columns}
@@ -431,8 +464,8 @@ class AdminPackages extends Component {
                                                 </IconButton>
                                             </Tooltip>
                                             <Tooltip title="Agregar fotos">
-                                                <IconButton aria-label="agregar fotos" onClick={this.handleOpenImageLoad}>
-                                                    <PhotoLibraryIcon/>
+                                                <IconButton aria-label="agregar fotos" onClick={this.handleOpenImageLoad.bind(this, rowData.id)}>
+                                                    <AddPhotoAlternateIcon/>
                                                 </IconButton>
                                             </Tooltip>
                                             <Tooltip title="Agregar mapa">
@@ -450,13 +483,13 @@ class AdminPackages extends Component {
                                 new Promise((resolve, reject) =>
                                 {
                                     const data = this.state.items;
-                                    newData['id'] = uniqid();
+                                    newData['id'] = uuidv1();
                                     // newData.price = '₡ ' + newData.price;
 
                                     var img = this.fileInput.current.files[0]
 
-                                    newData.refThumbnail = 'packages/' + uniqid() + '.png';
-                                    newData.refImage = 'packages/' + uniqid() + '.png';
+                                    newData.refThumbnail = 'packages/' + newData.id + '/' + uuidv1() + '.png';
+                                    newData.refImage = 'packages/' + newData.id + '/' + uuidv1() + '.png';
                                     newData.thumbnailURL = ''
                                     newData.imgURL = ''
 
@@ -630,10 +663,10 @@ class AdminPackages extends Component {
                                     // this.setState({ data }, () => resolve());
                                     var img = this.fileInput.current.files[0]
 
-                                    if (typeof img !== 'undefined' && newData.refThumbnail == 'ref/logoBackgroundThumbnail.png')
+                                    if (typeof img !== 'undefined' && newData.refThumbnail == 'res/logoBackgroundThumbnail.png')
                                     {
-                                        newData.refThumbnail = 'packages/' + uniqid() + '.png';
-                                        newData.refImage = 'packages/' + uniqid() + '.png';
+                                        newData.refThumbnail = 'packages/' + newData.id + '/' + uuidv1() + '.png';
+                                        newData.refImage = 'packages/' + newData.id + '/' + uuidv1() + '.png';
                                         newData.thumbnailURL = ''
                                         newData.imgURL = ''
                                     }
@@ -820,7 +853,6 @@ class AdminPackages extends Component {
                             addRowPosition: 'first'
                         }}
                     />
-                </LoadingOverlay>
 
                     {/*Modal 2*/}
                     <div className="modal fade" id="setSchedule" tabIndex="-1" role="dialog" aria-hidden="true">
@@ -928,14 +960,16 @@ class AdminPackages extends Component {
 
 
 
-                        <DropzoneDialog
-                            open={this.state.openImgLoad}
-                            onSave={this.handleSubmitImages}
-                            acceptedFiles={['image/*']}
-                            showPreviews={true}
-                            maxFileSize={5000000}
-                            onClose={this.handleCloseImageLoad}
-                        />
+                    <DropzoneDialog
+                        open={this.state.openImgLoad}
+                        onSave={this.handleSubmitImages}
+                        onChange={this.handleLoadImages}
+                        dialogTitle={title}
+                        acceptedFiles={['image/*']}
+                        showPreviews={true}
+                        maxFileSize={5000000}
+                        onClose={this.handleCloseImageLoad}
+                    />
                 </Layout>
 
             </div>

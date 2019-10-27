@@ -19,7 +19,7 @@ import VCard from './components/VCard';
 //Other -----------------------------------------------------------------------------------------------------
 // import data from './data/packages.json';
 
-import { initFirebase } from './lib/firebase/firebase'
+import { initFirebase } from './lib/firebase'
 
 var firebase;
 

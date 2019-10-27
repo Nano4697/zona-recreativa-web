@@ -55,6 +55,7 @@
     "sharp": "^0.23.1",
     "sql-template-strings": "^2.2.2",
     "uniqid": "^5.0.3",
+    "uuid": "^3.3.3",
     "watermark": "^1.0.1",
     "watermarkjs": "^2.0.0"
   },

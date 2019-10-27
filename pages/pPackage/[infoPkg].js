@@ -25,7 +25,7 @@ import imgs from '../data/packageImg.json'
 import "firebase/firestore";
 import "firebase/storage";
 
-import { initFirebase } from '../lib/firebase/firebase'
+import { initFirebase } from '../lib/firebase'
 
 var firebase;
 
@@ -37,7 +37,9 @@ class infoPkg extends Component {
         this.state = {
             errorCode: props.errorCode,
             data: {},
-            schedule: []
+            schedule: [],
+            imgs: [],
+            refs: []
         }
 
         var prom =  new Promise((resolve, reject) =>
@@ -56,6 +58,7 @@ class infoPkg extends Component {
                     if (doc.exists)
                     {
                         this.state.data = doc.data();
+
                         this.forceUpdate();
 
                         db.collection("Itinerario").where("id", "==", props.info)
@@ -65,15 +68,31 @@ class infoPkg extends Component {
                                 if (doc.exists)
                                 {
                                     this.state.schedule = doc.data().schedule
-                                    console.log(this.state)
+
+                                    this.forceUpdate();
                                 }
-                                this.forceUpdate();
                             });
+                        })
+
+                        db.collection("ImagenesPaquetes").where("id", "==", props.info)
+                        .get()
+                        .then((querySnapshot) => {
+                            querySnapshot.forEach((doc) => {
+                                if (doc.exists)
+                                {
+                                    this.state.imgs = doc.data().imgs
+                                    this.state.imgsRef = doc.data().refs
+                                    // console.log(this.state.imgs)
+
+                                    this.forceUpdate();
+                                }
+                            })
                         })
                     }
                 });
             })
             .catch((err) => {
+                console.log(err)
                 this.state.errorCode = 204;
             });
         })
@@ -94,12 +113,13 @@ class infoPkg extends Component {
 
     fillCarousel()
     {
-        return imgs.map(item => (
-            <Carousel.Item key={item.id}>
-                <img className="d-block w-100" src={require(`../resources/${item.img}`)}/>
+        console.log('dfasdfasdf')
+        return this.state.imgs.map((item, i) => (
+            <Carousel.Item key={i}>
+                <img className="d-block w-100" src={item}/>
                 <Carousel.Caption style={{width: "100%", left: "0px", background: "rgba(0,0,0,0.5)"}}>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
+                    {/*<h3>{item.title}</h3>
+                <p>{item.description}</p>*/}
                 </Carousel.Caption>
             </Carousel.Item>
         ));
@@ -137,7 +157,8 @@ class infoPkg extends Component {
                                 Fotos
                             </h3>
                             <Carousel className="row mb-3 mt-sm-auto mt-3 ">
-                                {this.fillCarousel}
+                                <img className="d-block w-100" src={this.state.imgs[0]}/>
+                                <img className="d-block w-100" src={this.state.imgs[1]}/>
                             </Carousel>
                             <h3 className="row mb-3">
                                 Alimentación

@@ -21,7 +21,7 @@ import "firebase/firestore";
 // import data from './data/packages.json';
 // import criteria from './data/filterList.json';
 
-import { initFirebase } from './lib/firebase/firebase'
+import { initFirebase } from './lib/firebase'
 
 var firebase;
 

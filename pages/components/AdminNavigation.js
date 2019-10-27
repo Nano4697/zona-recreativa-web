@@ -8,7 +8,7 @@ import Router from 'next/router'
 import '../style/fullPage.css'
 
 
-import { initFirebase } from '../lib/firebase/firebase'
+import { initFirebase } from '../lib/firebase'
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 // import * as firebase from "firebase/app";
