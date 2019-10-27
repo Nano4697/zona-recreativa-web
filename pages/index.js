@@ -4,7 +4,7 @@ import Link from 'next/link';
 import fetch from 'isomorphic-unfetch';
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
+// import * as firebase from "firebase/app";
 
 // // Add the Firebase products that you want to use
 import "firebase/firestore";
@@ -19,7 +19,9 @@ import VCard from './components/VCard';
 //Other -----------------------------------------------------------------------------------------------------
 // import data from './data/packages.json';
 
-import firebaseConfig from './lib/firebase/firebase'
+import { initFirebase } from './lib/firebase/firebase'
+
+var firebase;
 
 class Index extends Component
 {
@@ -31,22 +33,25 @@ class Index extends Component
             popular: []
         }
 
-        // Initialize firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        var prom =  new Promise((resolve, reject) =>
+        {
+            firebase = initFirebase()
+            resolve()
+        })
 
-        var db = firebase.firestore();
+        prom.then((success) => {
+            var db = firebase.firestore();
 
-        db.collection("Paquetes").orderBy("solicitudes", "desc").limit(10).get().then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                if (doc.exists) {
-                    this.state.popular.push(doc.data());
-                }
+            db.collection("Paquetes").orderBy("solicitudes", "desc").limit(10).get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    if (doc.exists) {
+                        this.state.popular.push(doc.data());
+                    }
+                });
+
+                this.forceUpdate()
             });
-
-            this.forceUpdate()
-        });
+        })
 
         this.multPrint = this.multPrint.bind(this);
     }

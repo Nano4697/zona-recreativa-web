@@ -38,6 +38,16 @@ Also you'll need the following packages:
 
 `npm i react-time-picker`
 
+`npm install --save material-ui-dropzone`
+
+`npm install dotenv`
+
+`npm install --save next-env dotenv-load`
+
+`npm install --save material-ui-dropzone`
+
+`npm i regenerator-runtime`
+
 ## About
 
 Timeline based on a tutorial blog made by Florian Pop

@@ -5,7 +5,6 @@ class SchedBuilder extends Component {
     constructor(props)
     {
         super(props);
-        console.log(props)
         this.state = {
             id: this.props.item.id,
             descripActiv: this.props.item.descrip,

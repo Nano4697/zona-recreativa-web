@@ -4,13 +4,15 @@ import Router from 'next/router'
 import { Formik, Field } from 'formik';
 import React, { Component } from 'react';
 
-import firebaseConfig from './lib/firebase/firebase';
+import { initFirebase } from './lib/firebase/firebase'
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
+import * as fb from "firebase/app";
 
 // Add the Firebase products that you want to use
 import "firebase/auth";
+
+var firebase;
 
 class AdminLogin extends Component
 {
@@ -24,8 +26,11 @@ class AdminLogin extends Component
             password: ''
         };// Initialize firebase
 
-        if (!firebase.apps.length)
-            firebase.initializeApp(firebaseConfig);
+        var prom =  new Promise((resolve, reject) =>
+        {
+            firebase = initFirebase()
+            resolve()
+        })
 
 
 
@@ -34,7 +39,7 @@ class AdminLogin extends Component
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    static async getInitialProps({query})
+    componentDidMount()
     {
         var username;
         var uid;
@@ -42,6 +47,7 @@ class AdminLogin extends Component
 
         firebase.auth().onAuthStateChanged(function(user)
         {
+            // console.log("Por aqui si pasa")
             if (user)
             {
                 // User is signed in.
@@ -53,6 +59,10 @@ class AdminLogin extends Component
                 // return {user: username, id: uid, provider: provider}
             }
         });
+    }
+
+    static async getInitialProps({query})
+    {
 
         return {}
     }
@@ -69,22 +79,26 @@ class AdminLogin extends Component
         var email = this.state.username;
         var password = this.state.password;
 
-        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+
+        firebase.auth().setPersistence(fb.auth.Auth.Persistence.LOCAL)
             .then(function() {
             // Existing and future Auth states are now persisted in the current
             // session only. Closing the window would clear any existing state even
             // if a user forgets to sign out.
             // ...
             // New sign-in will be persisted with session persistence.
-            return firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+            return firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+                console.log("Ingrese")
+            })
+            .catch(function(error) {
                 // Handle Errors here.
                 var errorCode = error.code;
                 var errorMessage = error.message;
                 // ...
+                console.log(error)
             });
         });
         // Router.push('/adminMain');
-        console.log(firebase.auth())
 
         //Reincia los inputs
         this.setState({

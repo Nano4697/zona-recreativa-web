@@ -43,8 +43,8 @@ const TimelineItem = ({ data }) => (
 
             <p className="mb-1 ml-0">
                 { typeof data !== 'undefined' &&
-                    typeof data.text !== 'undefined' &&
-                    data.text }
+                    typeof data.descrip !== 'undefined' &&
+                    data.descrip }
             </p>
             <span className="circle" />
         </div>

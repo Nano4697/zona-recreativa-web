@@ -19,15 +19,15 @@ import data from '../data/infoPackage.json';
 import imgs from '../data/packageImg.json'
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
+// import * as firebase from "firebase/app";
 
 // Add the Firebase products that you want to use
 import "firebase/firestore";
 import "firebase/storage";
 
-import firebaseConfig from '../lib/firebase/firebase'
+import { initFirebase } from '../lib/firebase/firebase'
 
-
+var firebase;
 
 class infoPkg extends Component {
     constructor(props)
@@ -40,18 +40,23 @@ class infoPkg extends Component {
             schedule: []
         }
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        var prom =  new Promise((resolve, reject) =>
+        {
+            firebase = initFirebase()
+            resolve()
+        })
 
-        var db = firebase.firestore();
-        db.collection("Paquetes").where("id", "==", props.info)
+        prom.then((success) => {
+        // console.log(fire.firestore())
+            var db = firebase.firestore()
+            db.collection("Paquetes").where("id", "==", props.info)
             .get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     if (doc.exists)
                     {
                         this.state.data = doc.data();
+                        this.forceUpdate();
 
                         db.collection("Itinerario").where("id", "==", props.info)
                         .get()
@@ -60,19 +65,18 @@ class infoPkg extends Component {
                                 if (doc.exists)
                                 {
                                     this.state.schedule = doc.data().schedule
+                                    console.log(this.state)
                                 }
                                 this.forceUpdate();
                             });
                         })
-                        console.log(this.state)
                     }
                 });
             })
             .catch((err) => {
                 this.state.errorCode = 204;
             });
-
-
+        })
 
         this.fillCarousel = this.fillCarousel.bind(this)
     }
@@ -84,10 +88,6 @@ class infoPkg extends Component {
         // return { infoPkg };
 
         var errorCode = false;
-
-        var filter = []
-        var pkg = {}
-
 
         return { errorCode, info: infoPkg }
     };
@@ -113,13 +113,11 @@ class infoPkg extends Component {
         {
             var info = this.state.data
 
-            console.log(this.state.schedule)
+            var breakfast = info.breakfast?<img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fbreakfast.svg?alt=media&token=11a937c9-76f4-4917-b389-d071c8129957" className="col-3" title="El desayuno puede ser: Emparedado, Frutas, Torta de huevo"/>:''
 
-            var breakfast = info.breakfast?<img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fbreakfast.svg?alt=media&token=11a937c9-76f4-4917-b389-d071c8129957" className="col-2" title="El desayuno puede ser: Emparedado, Frutas, Torta de huevo"/>:''
+            var lunch = info.lunch?<img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fburger.svg?alt=media&token=1c9f65f2-f922-4fee-986e-a1213b32c6fe" className="col-3" title="El almuerzo puede ser: Emparedado, Burrito, Perro caliente"/>:''
 
-            var lunch = info.lunch?<img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fburger.svg?alt=media&token=1c9f65f2-f922-4fee-986e-a1213b32c6fe" className="col-2" title="El aalmuerzo puede ser: Emparedado, Burrito, Perro caliente"/>:''
-
-            var coffe = info.coffe?<img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fcoffee-cup.svg?alt=media&token=17581205-d8c9-4dea-8db6-9cee84f98c46" className="col-2" title="La merienda puede ser: Emparedado, Frutas, Galletas"/>:''
+            var coffe = info.coffe?<img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Fcoffee-cup.svg?alt=media&token=17581205-d8c9-4dea-8db6-9cee84f98c46" className="col-3" title="La merienda puede ser: Emparedado, Frutas, Galletas"/>:''
 
             var note = (breakfast=='' && lunch=='' && coffe=='')?'':<p className="mt-2" style={{fontSize: "14px"}}>Nota: La opciones de alimentación pueden variar</p>
 

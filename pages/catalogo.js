@@ -12,7 +12,7 @@ import Button from 'react-bootstrap/Button';
 //Other --------------------------------------------------------------------------------------------------------
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
+// import * as firebase from "firebase/app";
 
 // Add the Firebase products that you want to use
 import "firebase/auth";
@@ -21,7 +21,9 @@ import "firebase/firestore";
 // import data from './data/packages.json';
 // import criteria from './data/filterList.json';
 
-import firebaseConfig from './lib/firebase/firebase'
+import { initFirebase } from './lib/firebase/firebase'
+
+var firebase;
 
 class Catalogo extends Component {
     constructor(props)
@@ -31,55 +33,99 @@ class Catalogo extends Component {
         this.state = {
             originalList: [],
             displayList: [],
-            criteria: props.criteria
+            criteria: []
         };
 
         // console.log(props.criteria)
 
-        // turn filter on
-        if (props.hasOwnProperty('tipo'))
+
+
+        var prom =  new Promise((resolve, reject) =>
         {
-            var crit = this.state.criteria;
-            for (var i = 0; i < crit.length; i++)
-            {
-                if (crit[i].id == 'tipo')
-                {
-                    for (var j = 0; j < crit[i].criteria.length; j++)
+            firebase = initFirebase()
+            resolve()
+        })
+
+        prom.then((success) => {
+        // console.log(fire.firestore())
+            var db = firebase.firestore()
+            db.collection("Paquetes")
+            .get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    if (doc.exists)
                     {
-                        crit[i].criteria[j].value = crit[i].criteria[j].name.toLowerCase() == props.tipo.toLowerCase();
+                        this.state.originalList.push(doc.data());
+                        console.log(doc.data().type)
+
+                        if (props.hasOwnProperty('tipo') && doc.data().type.toLowerCase() == props.tipo.toLowerCase())
+                        {
+                            this.state.displayList.push(doc.data());
+                        }
                     }
-                }
-            }
-            this.state.criteria = crit;
-        }
+                });
 
-        // Initialize firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
-        var db = firebase.firestore();
-
-        db.collection("Paquetes").get().then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                if (doc.exists)
+                if (this.state.displayList.length == 0)
                 {
-                    this.state.originalList.push(doc.data());
-
-                    if (props.hasOwnProperty('tipo') && doc.data().tipo.toLowerCase() == props.tipo.toLowerCase())
-                    {
-                        this.state.displayList.push(doc.data());
-                    }
+                    this.state.displayList = this.state.originalList;
                 }
-            });
 
-            if (this.state.displayList.length == 0)
-            {
-                this.state.displayList = this.state.originalList;
-            }
+                //Obtiene la lista de filtros
+                db.collection("filtros").get().then((querySnapshot) => {
+                    var crit = []
 
-            this.forceUpdate()
+                    querySnapshot.forEach((doc) => {
+                        if (doc.exists)
+                        {
+                            crit.push(doc.data());
+                        }
+                    });
+
+
+
+                    // turn filter on
+                    if (props.hasOwnProperty('tipo'))
+                    {
+                        for (var i = 0; i < crit.length; i++)
+                        {
+                            if (crit[i].id == 'tipo')
+                            {
+                                for (var j = 0; j < crit[i].criteria.length; j++)
+                                {
+                                    crit[i].criteria[j].value = crit[i].criteria[j].name.toLowerCase() == props.tipo.toLowerCase();
+                                }
+                            }
+                        }
+                    }
+                    this.state.criteria = crit;
+
+                    this.forceUpdate()
+                });
+            })
         });
+
+        // var db = firebase.firestore();
+
+        // db.collection("Paquetes").get().then((querySnapshot) => {
+        //     querySnapshot.forEach((doc) => {
+        //         if (doc.exists)
+        //         {
+        //             this.state.originalList.push(doc.data());
+        //
+        //             if (props.hasOwnProperty('tipo') && doc.data().tipo.toLowerCase() == props.tipo.toLowerCase())
+        //             {
+        //                 this.state.displayList.push(doc.data());
+        //             }
+        //         }
+        //     });
+        //
+        //     if (this.state.displayList.length == 0)
+        //     {
+        //         this.state.displayList = this.state.originalList;
+        //     }
+        //
+        //     this.forceUpdate()
+        // });
 
         // console.log(this.state.displayList)
         // console.log(data)
@@ -91,27 +137,10 @@ class Catalogo extends Component {
 
     static async getInitialProps({query})
     {
-        // Initialize firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
-        var db = firebase.firestore();
-        var filter = []
-
-        await db.collection("filtros").get().then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                if (doc.exists)
-                {
-                    filter.push(doc.data());
-                }
-            });
-        });
-
         if (query.hasOwnProperty("tipo"))
-            return {tipo: query.tipo, criteria: filter}
+            return {tipo: query.tipo}
         else
-            return {criteria: filter}
+            return {}
     }
 
     fillCatalog (data)
@@ -120,7 +149,7 @@ class Catalogo extends Component {
         {
             return this.state.displayList.map(item => (
                 <div key={item.id}>
-                    <Package uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+                    <Package uid={item.id} title={item.name} msg={item.descrip} img={item.imgURL} />
                     <hr/>
                 </div>
             ));
@@ -129,7 +158,7 @@ class Catalogo extends Component {
         {
             return data.map(item => (
                 <div key={item.id}>
-                    <Package uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+                    <Package uid={item.id} title={item.name} msg={item.descrip} img={item.imgURL} />
                     <hr/>
                 </div>
             ));
@@ -232,37 +261,37 @@ class Catalogo extends Component {
             <div>
                 <Navigation />
                 <Layout>
-                <div className="row justify-content-center">
-                    <h1 className="mt-2 mb-4">
-                        Catálogo
-                    </h1>
-                </div>
-                <div className="row justify-content-center mx-3">
-                    <div className="col-md-3 col-12 bg-white border rounded mb-md-auto mb-2">
-                        <h5 className="mt-2 border-bottom">Filtrar por:</h5>
-                        {this.fillFilter()}
+                    <div className="row justify-content-center">
+                        <h1 className="mt-2 mb-4">
+                            Catálogo
+                        </h1>
                     </div>
-                    <div className="col-md-9 col-12 pl-md-2 px-0">
-                        {this.fillCatalog()}
-                    </div>
-                </div>
-                <div className="row justify-content-center">
-                    <div>
-                        <h4 className="mt-2 mb-4 text-center">
-                            ¿No encuentras lo que buscas?
-                        </h4>
-                        <p>
-                            Contacta con nosotros para explorar otras opciones:
-                        </p>
-                        <div className="row justify-content-center">
-                            <Link href={{ pathname: '/contact', query: { template: "moreoptions" }}}>
-                                <Button className="btn-lg mb-3" style={{background: "#00aeef", color: "black"}}>
-                                    Contactar
-                                </Button>
-                            </Link>
+                    <div className="row justify-content-center mx-3">
+                        <div className="col-md-3 col-12 bg-white border rounded mb-md-auto mb-2">
+                            <h5 className="mt-2 border-bottom">Filtrar por:</h5>
+                            {this.fillFilter()}
+                        </div>
+                        <div className="col-md-9 col-12 pl-md-2 px-0">
+                            {this.fillCatalog()}
                         </div>
                     </div>
-                </div>
+                    <div className="row justify-content-center">
+                        <div>
+                            <h4 className="mt-2 mb-4 text-center">
+                                ¿No encuentras lo que buscas?
+                            </h4>
+                            <p>
+                                Contacta con nosotros para explorar otras opciones:
+                            </p>
+                            <div className="row justify-content-center">
+                                <Link href={{ pathname: '/contact', query: { template: "moreoptions" }}}>
+                                    <Button className="btn-lg mb-3" style={{background: "#00aeef", color: "black"}}>
+                                        Contactar
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
                 </Layout>
             </div>
         )

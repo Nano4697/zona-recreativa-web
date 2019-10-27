@@ -12,6 +12,11 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Link from 'next/link';
 import Resizer from 'react-image-file-resizer';
 import TextField from '@material-ui/core/TextField';
+import regeneratorRuntime from "regenerator-runtime";
+import {DropzoneDialog} from 'material-ui-dropzone';
+
+import LoadingOverlay from 'react-loading-overlay'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 //Components
 import AdminNavigation from './components/AdminNavigation';
@@ -29,48 +34,26 @@ import InfoIcon from '@material-ui/icons/Info';
 import PublishIcon from '@material-ui/icons/Publish';
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
+// import * as firebase from "firebase/app";
 
 // Add the Firebase products that you want to use
 import "firebase/auth";
 import "firebase/firestore";
 import "firebase/storage";
 
-import firebaseConfig from './lib/firebase/firebase'
+import { initFirebase } from './lib/firebase/firebase'
 
 var ReactDOM = require('react-dom');
 var uniqid = require('uniqid');
 
+var firebase;
 
 class AdminPackages extends Component {
 
     constructor (props)
     {
         super(props);
-
         // Initialize firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
-        firebase.auth().onAuthStateChanged(function(user)
-        {
-            if (user)
-            {
-                // User is signed in.
-                // username = user.email;
-                // uid = user.uid;
-                // providerData = user.providerData;
-                //
-                // Router.push('/adminMain')
-                // return {user: username, id: uid, provider: provider}
-            }
-            else
-            {
-                Router.push('/')
-            }
-        });
-
         //inicializa state
         this.state = {
             id: '',
@@ -78,13 +61,16 @@ class AdminPackages extends Component {
             durMin: 0,
             lastActId: 0,
             descripActiv: '',
-            inicio: '00:00',
+            inicio: '07:00',
             activities: [],
-            items: this.props.data,
+            items: [],
             img: false,
             showModal: false,
             modalType: 'success',
             modalMsg: '',
+            openImgLoad: false,
+            images: [],
+            uploading: false,
 
 
             columns: [
@@ -115,6 +101,33 @@ class AdminPackages extends Component {
             ]
         };
 
+        var prom =  new Promise((resolve, reject) =>
+        {
+            firebase = initFirebase()
+            resolve()
+        })
+
+        prom.then((success) => {
+        // console.log(fire.firestore())
+            var db = firebase.firestore()
+            var items = []
+
+            db.collection("Paquetes").where("active", "==", true)
+            .get()
+            .then((querySnapshot) => {
+                // console.log(querySnapshot)
+                querySnapshot.forEach((doc) => {
+                    if (doc.exists)
+                    {
+                        items.push(doc.data());
+                    }
+                });
+                this.setState({
+                    items: items
+                })
+            });
+        })
+
         this.fileInput = React.createRef();
 
         //Se necesita hacer bind a todas la funciones que se usen dentro de la clase.
@@ -124,36 +137,12 @@ class AdminPackages extends Component {
         this.handleClose = this.handleClose.bind(this);
         this._onListChange = this._onListChange.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.handleSubmitImages = this.handleSubmitImages.bind(this);
+        this.handleCloseImageLoad = this.handleCloseImageLoad.bind(this);
+        this.handleOpenImageLoad = this.handleOpenImageLoad.bind(this);
+        this.handleLoadImages = this.handleLoadImages.bind(this);
 
         this.removeActivity = this.removeActivity.bind(this);
-    }
-
-    static async getInitialProps()
-    {
-        // Initialize firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
-        var db = firebase.firestore();
-
-        var items = []
-
-        await db.collection("Paquetes").where("active", "==", true).get().then((querySnapshot) => {
-            console.log(querySnapshot)
-            querySnapshot.forEach((doc) => {
-                if (doc.exists)
-                {
-                    items.push(doc.data());
-                }
-            });
-        });
-
-        // if (query.hasOwnProperty("tipo"))
-        //     return {tipo: query.tipo, criteria: filter}
-        // else
-        //     return {criteria: filter}
-        return {data: items}
     }
 
     closeModal(event, reason)
@@ -168,8 +157,24 @@ class AdminPackages extends Component {
 
     componentDidMount()
     {
-        // ReactDOM.findDOMNode(this.myRef.current).setAttribute('required', true);
-        // $('#setSchedule').modal('handleUpdate')
+        var username;
+        var uid;
+        var providerData;
+
+        firebase.auth().onAuthStateChanged(function(user)
+        {
+            if (user)
+            {
+                // User is signed in.
+                username = user.email;
+                uid = user.uid;
+                providerData = user.providerData;
+            }
+            else
+            {
+                Router.push('/')
+            }
+        });
     }
 
     componentDidUpdate()
@@ -177,11 +182,58 @@ class AdminPackages extends Component {
         $('#setSchedule').modal('handleUpdate')
     }
 
-    loadSchedule(id)
+    handleLoadImages(files)
     {
         this.setState({
-            id: id,
-            activities: [...this.state.activities, {id: id, descrip: "Descripcion de prueba", hora: id, min: "00", ampm: "am"}]
+            files: files
+        });
+    }
+
+    handleCloseImageLoad()
+    {
+        this.setState({
+            openImgLoad: false
+        });
+    }
+
+    handleOpenImageLoad() {
+        this.setState({
+            openImgLoad: true,
+        });
+    }
+
+    handleSubmitImages(files)
+    {
+        this.setState({
+        openImgLoad: false,
+            uploading: true
+        });
+        setTimeout(() =>
+        {
+            this.setState({
+            images: files,
+            uploading: false
+            });
+        }, 5000)
+    }
+
+    loadSchedule(id)
+    {
+        var db = firebase.firestore();
+
+        db.collection("Itinerario").where("id", "==", id)
+        .get()
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                if (doc.exists)
+                {
+                    var newSched = doc.data().schedule
+                    this.setState({
+                        id: id,
+                        activities: newSched
+                    }, () => { this.forceUpdate() })
+                }
+            });
         })
     }
 
@@ -194,7 +246,6 @@ class AdminPackages extends Component {
             })
         });
 
-        console.log(this.state.activities);
         this.forceUpdate();
     }
 
@@ -203,21 +254,18 @@ class AdminPackages extends Component {
         e.preventDefault();
 
         var descrip = this.state.descripActiv;
-        var hora = this.state.durHora;
-        var min = this.state.durMin;
+        var hora = parseInt(this.state.durHora);
+        var min = parseInt(this.state.durMin);
         var id = this.state.lastActId;
         this.setState({
                 activities: [...this.state.activities, {id, descrip, hora, min}],
                 lastActId: this.state.lastActId+1
             })
 
-        console.log(this.state.activities)
-
     }
 
     _onListChange(newList, movedItem)
     {
-        console.log(movedItem)
         this.setState({activities: newList});
     }
 
@@ -229,22 +277,25 @@ class AdminPackages extends Component {
 
         var time = new Date("2000-01-01T" + this.state.inicio)
 
+        console.log("hora inicial: ", time.toLocaleTimeString('en-US', {timeStyle: 'medium', hour: '2-digit', minute:'2-digit'}))
+
         var sched = act.map((i) => {
             var result = {
-                text: i.descrip,
-                time: time.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
-           .replace(/(:\d{2}| [AP]M)$/, ""),
-                duracion: (i.hora>0?(i.hora+" hora(s) "):"") + i.min + " minutos"
+                id: i.id,
+                descrip: i.descrip,
+                time: time.toLocaleTimeString('en-US', {timeStyle: 'medium', hour: '2-digit', minute:'2-digit'}),
+                duracion: (i.hora>0?(i.hora+" hora(s) "):"") + i.min + " minutos",
+                hora: i.hora,
+                min: i.min
             }
-            console.log(i.min, (parseInt(i.hora)*60 + parseInt(i.min)))
-            time = new Date(time.getTime() + (parseInt(i.hora)*60 + parseInt(i.min))*60000);
+            time = new Date(time.getTime() + (i.hora*60 + i.min)*60000);
+            console.log("hora actualizada: ", time)
             return result
         })
 
         var db = firebase.firestore();
         var accessThis = this;
 
-        // load thumbnail
         db.collection("Itinerario").doc(this.state.id).set({
                 id: this.state.id,
                 schedule: sched
@@ -278,6 +329,8 @@ class AdminPackages extends Component {
         })
 
         console.log(sched)
+
+        $('.modal').modal('toggle')
     }
 
     handleClose(e)
@@ -345,6 +398,16 @@ class AdminPackages extends Component {
                         />
                       </Snackbar>
 
+                      <LoadingOverlay
+                          active={this.state.uploading}
+                          spinner={<CircularProgress />}
+                          styles={{
+                        overlay: (base) => ({
+                          ...base,
+                          background: 'rgba(120, 120, 120, 0.5)'
+                        })
+                      }}
+                      >
                     <MaterialTable
                         title=''
                         columns={this.state.columns}
@@ -368,7 +431,7 @@ class AdminPackages extends Component {
                                                 </IconButton>
                                             </Tooltip>
                                             <Tooltip title="Agregar fotos">
-                                                <IconButton>
+                                                <IconButton aria-label="agregar fotos" onClick={this.handleOpenImageLoad}>
                                                     <PhotoLibraryIcon/>
                                                 </IconButton>
                                             </Tooltip>
@@ -650,8 +713,6 @@ class AdminPackages extends Component {
                                                 db.collection("Paquetes").doc(newData.id).set(newData)
                                             .then(function() {
                                                 // console.log("Document written with ID: ", docRef.id);
-
-                                                data.push(newData);
                                                 var message = ''
                                                 var typeMsg = ''
 
@@ -691,7 +752,6 @@ class AdminPackages extends Component {
                                             .then(function() {
                                                 // console.log("Document with ID: ", newData.id, " updated");
 
-                                                data.push(newData);
                                                 accessThis.setState({
                                                     data,
                                                     modalMsg: 'Paquete actualizado correctamente.',
@@ -760,6 +820,7 @@ class AdminPackages extends Component {
                             addRowPosition: 'first'
                         }}
                     />
+                </LoadingOverlay>
 
                     {/*Modal 2*/}
                     <div className="modal fade" id="setSchedule" tabIndex="-1" role="dialog" aria-hidden="true">
@@ -864,6 +925,17 @@ class AdminPackages extends Component {
                             </form>
                         </div>
                     </div>
+
+
+
+                        <DropzoneDialog
+                            open={this.state.openImgLoad}
+                            onSave={this.handleSubmitImages}
+                            acceptedFiles={['image/*']}
+                            showPreviews={true}
+                            maxFileSize={5000000}
+                            onClose={this.handleCloseImageLoad}
+                        />
                 </Layout>
 
             </div>

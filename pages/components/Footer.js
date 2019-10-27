@@ -4,7 +4,7 @@ import Link from 'next/link';
 import '../style/timeline-style.css'
 
 const Footer = (props) => (
-    <footer className="bg-dark pt-4" style={{msFlex: "0 0 auto", flex: "0 0 auto"}}>
+    <footer className="pt-4" style={{msFlex: "0 0 auto", flex: "0 0 auto", background: "#00803e"}}>
         <div className="container col-12">
             <div className="row ml-md-5 ml-sm-2 ml-1 pl-0">
                 <div className="col-lg-1 col-md-2 col-12 p-0">

@@ -2,7 +2,14 @@ const withImages = require('next-images')
 const withCSS = require('@zeit/next-css')
 const withFonts = require('next-fonts');
 
-module.exports = withFonts(withImages(withCSS({
+const nextEnv = require('next-env');
+const dotenvLoad = require('dotenv-load');
+
+dotenvLoad();
+
+const withNextEnv = nextEnv();
+
+module.exports = withNextEnv(withFonts(withImages(withCSS({
   /* config options here */
     // distDir: 'build',
 
@@ -28,23 +35,22 @@ module.exports = withFonts(withImages(withCSS({
         return paths;
     },
 
-    webpack: (config) => {
-  return {
-    ...config,
-    node: {
-      fs:
-        'empty'
-      }
-    }
-},
+    // webpack: (config) => {
+    //     return {
+    //         ...config,
+    //         node: {
+    //             fs: 'empty'
+    //         }
+    //     }
+    // },
 
-    env: {
-        REACT_APP_API_KEY: 'AIzaSyCX8-lZo1LksguFjXp1aucpwn34QV33HUw',
-        REACT_APP_AUTH_DOMAIN: 'zona-recreativa-cr.firebaseapp.com',
-        REACT_APP_DATABASE_URL: 'https://zona-recreativa-cr.firebaseio.com',
-        REACT_APP_PROJECT_ID: 'zona-recreativa-cr',
-        REACT_APP_STORAGE_BUCKET: 'zona-recreativa-cr.appspot.com',
-        REACT_APP_MESSAGING_SENDER_ID: '311140447739',
-        REACT_APP_ID: '1:311140447739:web:1e629544dd2c8dff08875',
-      }
-})))
+    // env: {
+        // REACT_APP_API_KEY:
+        // REACT_APP_AUTH_DOMAIN:
+        // REACT_APP_DATABASE_URL:
+        // REACT_APP_PROJECT_ID:
+        // REACT_APP_STORAGE_BUCKET:
+        // REACT_APP_MESSAGING_SENDER_ID:
+        // REACT_APP_ID:
+      // }
+}))))

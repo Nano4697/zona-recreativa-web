@@ -7,13 +7,16 @@ import Link from 'next/link';
 import Router from 'next/router'
 import '../style/fullPage.css'
 
-import firebaseConfig from '../lib/firebase/firebase';
+
+import { initFirebase } from '../lib/firebase/firebase'
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
+// import * as firebase from "firebase/app";
 
 // Add the Firebase products that you want to use
 import "firebase/auth";
+
+var fire;
 
 class AdminNavigation extends Component {
 
@@ -21,8 +24,12 @@ class AdminNavigation extends Component {
     {
         super();
 
-        if (!firebase.apps.length)
-            firebase.initializeApp(firebaseConfig);
+        var prom =  new Promise((resolve, reject) =>
+        {
+            fire = initFirebase()
+            resolve()
+        })
+
 
         //Se necesita hacer bind a todas la funciones que se usen dentro de la clase.
         this.endSession = this.endSession.bind(this);
@@ -30,7 +37,8 @@ class AdminNavigation extends Component {
 
     endSession()
     {
-        firebase.auth().signOut().then(function() {
+
+        fire.auth().signOut().then(function() {
             // Sign-out successful.
             Router.push('/');
         }).catch(function(error) {
