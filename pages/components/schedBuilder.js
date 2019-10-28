@@ -5,11 +5,26 @@ class SchedBuilder extends Component {
     constructor(props)
     {
         super(props);
+        console.log (props)
+
+        var propsId = '';
+        var propsDesc = '';
+        var propsHora = '';
+        var propsMin = '';
+
+        if (this.props.hasOwnProperty('item'))
+        {
+            propsId = (typeof this.props.item.id == 'undefined' ? '' : this.props.item.id)
+            propsDesc = (typeof this.props.item.descrip == 'undefined' ? '' : this.props.item.descrip)
+            propsHora = (typeof this.props.item.hora == 'undefined' ? '' : this.props.item.hora)
+            propsMin = (typeof this.props.item.min == 'undefined' ? '' : this.props.item.min)
+        }
+
         this.state = {
-            id: this.props.item.id,
-            descripActiv: this.props.item.descrip,
-            durHora: this.props.item.hora,
-            durMin: this.props.item.min
+            id: propsId,
+            descripActiv: propsDesc,
+            durHora: propsHora,
+            durMin: propsMin
         }
 
         this.removeActivity = this.removeActivity.bind(this);

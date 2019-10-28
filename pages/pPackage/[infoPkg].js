@@ -25,7 +25,7 @@ import imgs from '../data/packageImg.json'
 import "firebase/firestore";
 import "firebase/storage";
 
-import { initFirebase } from '../lib/firebase'
+import { initFirebase } from '../../lib/firebase'
 
 var firebase;
 
@@ -113,13 +113,12 @@ class infoPkg extends Component {
 
     fillCarousel()
     {
-        console.log('dfasdfasdf')
         return this.state.imgs.map((item, i) => (
             <Carousel.Item key={i}>
                 <img className="d-block w-100" src={item}/>
                 <Carousel.Caption style={{width: "100%", left: "0px", background: "rgba(0,0,0,0.5)"}}>
-                    {/*<h3>{item.title}</h3>
-                <p>{item.description}</p>*/}
+                    <h3>{ item.hasOwnProperty('title') ? item.title : '' }</h3>
+                    <p>{ item.hasOwnProperty('description') ? item.description : '' }</p>
                 </Carousel.Caption>
             </Carousel.Item>
         ));
@@ -157,8 +156,7 @@ class infoPkg extends Component {
                                 Fotos
                             </h3>
                             <Carousel className="row mb-3 mt-sm-auto mt-3 ">
-                                <img className="d-block w-100" src={this.state.imgs[0]}/>
-                                <img className="d-block w-100" src={this.state.imgs[1]}/>
+                                { this.fillCarousel() }
                             </Carousel>
                             <h3 className="row mb-3">
                                 Alimentación

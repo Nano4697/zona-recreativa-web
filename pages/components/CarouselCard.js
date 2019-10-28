@@ -21,6 +21,7 @@ const responsive = {
   },
 };
 
+
 const CarouselCard = props => {
     return <Carousel swipeable={true}
         draggable={false}

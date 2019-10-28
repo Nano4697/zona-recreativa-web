@@ -14,10 +14,17 @@ module.exports = withNextEnv(withFonts(withImages(withCSS({
     // distDir: 'build',
 
     /*Para cada pagina hay que agregar el enlace a la constante paths*/
-    exportPathMap: async function() {
+    exportPathMap: async function(
+            defaultPathMap,
+            { dev, dir, outDir, distDir, buildId }
+        ) {
         const paths = {
             '/': { page: '/' },
             '/about': { page: '/about'},
+            '/adminLogin': { page: '/adminLogin'},
+            '/adminMain': { page: '/adminMain'},
+            '/adminPackages': { page: '/adminPackages'},
+            '/adminSeguros': { page: '/adminSeguros'},
             '/catalogo': { page: '/catalogo'},
             '/contact': { page: '/contact'},
             '/galeria': { page: '/galeria'},

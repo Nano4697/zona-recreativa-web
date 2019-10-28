@@ -5,7 +5,8 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ]
+      ],
+    "cleanUrls": true
   },
   "storage": {
     "rules": "storage.rules"

@@ -41,7 +41,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import "firebase/storage";
 
-import { initFirebase } from './lib/firebase'
+import { initFirebase } from '../lib/firebase'
 
 var ReactDOM = require('react-dom');
 const uuidv1 = require('uuid/v1');
@@ -179,12 +179,12 @@ class AdminPackages extends Component {
 
     componentDidUpdate()
     {
-        $('#setSchedule').modal('handleUpdate')
+        // $('#setSchedule').modal('handleUpdate')
     }
 
     handleLoadImages(files)
     {
-        console.log(files)
+        // console.log(files)
     }
 
     handleCloseImageLoad()
@@ -236,7 +236,7 @@ class AdminPackages extends Component {
             }
         ))
         .then((values) => {
-            console.log(values)
+            // console.log(values)
 
             db.collection("ImagenesPaquetes").doc(accessThis.state.id).set( {id: accessThis.state.id, imgs: values, refs: refs})
             .then(function() {
@@ -263,6 +263,10 @@ class AdminPackages extends Component {
     {
         var db = firebase.firestore();
 
+        this.setState({
+            id: id
+        })
+
         db.collection("Itinerario").where("id", "==", id)
         .get()
         .then((querySnapshot) => {
@@ -271,7 +275,6 @@ class AdminPackages extends Component {
                 {
                     var newSched = doc.data().schedule
                     this.setState({
-                        id: id,
                         activities: newSched
                     }, () => { this.forceUpdate() })
                 }
@@ -283,7 +286,7 @@ class AdminPackages extends Component {
     {
         this.setState({
             activities: this.state.activities.filter((e, i) => {
-                console.log(this.state.activities[i].id + ", " + index)
+                // console.log(this.state.activities[i].id + ", " + index)
                 return this.state.activities[i].id != index
             })
         });
@@ -319,7 +322,7 @@ class AdminPackages extends Component {
 
         var time = new Date("2000-01-01T" + this.state.inicio)
 
-        console.log("hora inicial: ", time.toLocaleTimeString('en-US', {timeStyle: 'medium', hour: '2-digit', minute:'2-digit'}))
+        // console.log("hora inicial: ", time.toLocaleTimeString('en-US', {timeStyle: 'medium', hour: '2-digit', minute:'2-digit'}))
 
         var sched = act.map((i) => {
             var result = {
@@ -331,7 +334,7 @@ class AdminPackages extends Component {
                 min: i.min
             }
             time = new Date(time.getTime() + (i.hora*60 + i.min)*60000);
-            console.log("hora actualizada: ", time)
+            // console.log("hora actualizada: ", time)
             return result
         })
 
@@ -370,9 +373,9 @@ class AdminPackages extends Component {
             });
         })
 
-        console.log(sched)
+        // console.log(sched)
 
-        $('.modal').modal('toggle')
+        // $('.modal').modal('toggle')
     }
 
     handleClose(e)
@@ -393,7 +396,7 @@ class AdminPackages extends Component {
             showModal: false
         });
 
-        $('.modal').modal({dismiss: false});
+        // $('.modal').modal({dismiss: false});
 
     }
 
@@ -524,7 +527,7 @@ class AdminPackages extends Component {
                                                     uri => {
                                                         newData.thumbnailURI= uri
 
-                                                        Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
+                                                        Resizer.imageFileResizer(img, 500, 500, 'PNG', 100, 0,
                                                             uri => {
                                                                 newData.imgURI= uri
                                                                 resolve()
@@ -626,7 +629,7 @@ class AdminPackages extends Component {
 
                                                 db.collection("Paquetes").doc(newData.id).set(newData)
                                             .then(function(docRef) {
-                                                console.log("Document written with ID: ", docRef.id);
+                                                // console.log("Document written with ID: ", docRef.id);
 
                                                 data.push(newData);
                                                 accessThis.setState({
@@ -700,7 +703,7 @@ class AdminPackages extends Component {
                                                     uri => {
                                                         thumbnailURI= uri
 
-                                                        Resizer.imageFileResizer(img, 300, 300, 'PNG', 100, 0,
+                                                        Resizer.imageFileResizer(img, 500, 500, 'PNG', 100, 0,
                                                             uri => {
                                                                 imgURI= uri
                                                                 resolve()
@@ -812,7 +815,7 @@ class AdminPackages extends Component {
                                     var db = firebase.firestore();
                                     var accessThis = this;
 
-                                    console.log(oldData)
+                                    // console.log(oldData)
 
                                     // load thumbnail
                                     db.collection("Paquetes").doc(oldData.id).set({

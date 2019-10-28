@@ -21,7 +21,7 @@ import "firebase/firestore";
 // import data from './data/packages.json';
 // import criteria from './data/filterList.json';
 
-import { initFirebase } from './lib/firebase'
+import { initFirebase } from '../lib/firebase'
 
 var firebase;
 
@@ -50,13 +50,14 @@ class Catalogo extends Component {
         // console.log(fire.firestore())
             var db = firebase.firestore()
             db.collection("Paquetes")
+            .where('active', '==', true)
             .get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     if (doc.exists)
                     {
                         this.state.originalList.push(doc.data());
-                        console.log(doc.data().type)
+                        // console.log(doc.data().type)
 
                         if (props.hasOwnProperty('tipo') && doc.data().type.toLowerCase() == props.tipo.toLowerCase())
                         {
@@ -103,29 +104,6 @@ class Catalogo extends Component {
                 });
             })
         });
-
-        // var db = firebase.firestore();
-
-        // db.collection("Paquetes").get().then((querySnapshot) => {
-        //     querySnapshot.forEach((doc) => {
-        //         if (doc.exists)
-        //         {
-        //             this.state.originalList.push(doc.data());
-        //
-        //             if (props.hasOwnProperty('tipo') && doc.data().tipo.toLowerCase() == props.tipo.toLowerCase())
-        //             {
-        //                 this.state.displayList.push(doc.data());
-        //             }
-        //         }
-        //     });
-        //
-        //     if (this.state.displayList.length == 0)
-        //     {
-        //         this.state.displayList = this.state.originalList;
-        //     }
-        //
-        //     this.forceUpdate()
-        // });
 
         // console.log(this.state.displayList)
         // console.log(data)
@@ -223,7 +201,7 @@ class Catalogo extends Component {
         displayList = displayList.filter(function(item)
         {
             var crit = this;
-            // console.log(crit[0])
+            // console.log(crit)
 
             for (var i = 0; i < crit.length; i++)
             {

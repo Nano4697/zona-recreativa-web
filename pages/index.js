@@ -19,7 +19,7 @@ import VCard from './components/VCard';
 //Other -----------------------------------------------------------------------------------------------------
 // import data from './data/packages.json';
 
-import { initFirebase } from './lib/firebase'
+import { initFirebase } from '../lib/firebase'
 
 var firebase;
 
@@ -42,7 +42,7 @@ class Index extends Component
         prom.then((success) => {
             var db = firebase.firestore();
 
-            db.collection("Paquetes").orderBy("solicitudes", "desc").limit(10).get().then((querySnapshot) => {
+            db.collection("Paquetes").where('active', '==', true).orderBy("solicitudes", "desc").limit(10).get().then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     if (doc.exists) {
                         this.state.popular.push(doc.data());
@@ -59,12 +59,15 @@ class Index extends Component
     multPrint ()
     {
         return this.state.popular.map(item => (
-            <VCard key={item.id} uid={item.id} title={item.nombre} msg={item.descripcion} img={item.img} />
+            <VCard key={item.id} uid={item.id} title={item.name} msg={item.descrip} img={item.imgURL} />
         ));
     }
 
     render()
     {
+        var showCarousel = (<CarouselCard showDots={true} autoPlay={true} infinite={false}>
+                                {this.multPrint()}
+                            </CarouselCard>)
         return (
             <div>
                 <Navigation/>
@@ -91,9 +94,7 @@ class Index extends Component
                         Los viajes más solicitados por nuestros clientes:
                     </p>
                     <div className="px-5">
-                        <CarouselCard showDots={true} autoPlay={true} infinite={true}>
-                            {this.multPrint()}
-                        </CarouselCard>
+                        {this.state.popular.length==0?'':showCarousel}
                     </div>
                     <h4 className="ml-3">
                         Tipos de viajes
@@ -102,7 +103,7 @@ class Index extends Component
                         Ofrecemos distintos tipos de viajes, de acuerdo a las neccesidades de nuestros clientes:
                     </p>
                     <div className="px-5">
-                        <CarouselCard showDots={true}>
+                        <CarouselCard showDots={false}>
                             <Link href={{ pathname: '/catalogo', query: { tipo: "recreativo" }}}>
                                 <div className="card mx-2" style={{height: "95%", cursor: "pointer"}}>
                                     <img src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Ftarget.svg?alt=media&token=fbf3d75c-b3e7-4f43-a9c8-094d3b20c0cc" className="card-img-top pt-4 px-5" alt="Diana de tiro con arco"/>
