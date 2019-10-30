@@ -1,9 +1,32 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
+  	match /{document=**} {
+  			allow read, write: if request.auth != null && request.auth.uid != null
+    }
+
+    match /Proveedores/{proveedor} {
+    		allow write: if true;
+        allow read: if request.auth != null && request.auth.uid != null
+    }
+
+    match /Paquetes/{paquete} {
         allow read: if true;
-        allow write: if request.auth.uid != null;
+        allow update: if (request.auth != null && request.auth.uid != null) ||
+        	((request.auth == null || request.auth.uid == null) &&
+            	request.resource.data.name == resource.data.name &&
+              request.resource.data.descrip == resource.data.descrip &&
+              request.resource.data.active == resource.data.active &&
+              request.resource.data.breakfast == resource.data.breakfast &&
+              request.resource.data.lunch == resource.data.lunch &&
+              request.resource.data.coffe == resource.data.coffe &&
+              request.resource.data.capacity == resource.data.capacity &&
+              request.resource.data.imgURL == resource.data.imgURL &&
+              request.resource.data.refImage == resource.data.refImage &&
+              request.resource.data.price == resource.data.price &&
+              request.resource.data.thumbnailURL == resource.data.thumbnailURL &&
+              request.resource.data.refThumbnail == resource.data.refThumbnail &&
+              request.resource.data.type == resource.data.type)
     }
   }
 }

@@ -24,7 +24,7 @@ Also you'll need the following packages:
 
 `npm install --save-dev typescript @types/react @types/node`
 
-`npm i react-multi-carousel image-watermark react-currency-input-field react-draggable-list uuid`
+`npm i react-multi-carousel image-watermark react-currency-input-field react-draggable-list uuid uniqid`
 
 `npm install firebase@6.3.4 --save`
 

@@ -45,6 +45,7 @@ import { initFirebase } from '../lib/firebase'
 
 var ReactDOM = require('react-dom');
 const uuidv1 = require('uuid/v1');
+var uniqid = require('uniqid');
 
 var firebase;
 
@@ -72,6 +73,8 @@ class AdminPackages extends Component {
             images: [],
             uploading: false,
             progress: 0,
+            openMapLoad: false,
+            loadingContent: true,
 
 
             columns: [
@@ -124,7 +127,8 @@ class AdminPackages extends Component {
                     }
                 });
                 this.setState({
-                    items: items
+                    items: items,
+                    loadingContent: false
                 })
             });
         })
@@ -139,8 +143,8 @@ class AdminPackages extends Component {
         this._onListChange = this._onListChange.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.handleSubmitImages = this.handleSubmitImages.bind(this);
+        this.handleSubmitMap = this.handleSubmitMap.bind(this);
         this.handleCloseImageLoad = this.handleCloseImageLoad.bind(this);
-        this.handleLoadImages = this.handleLoadImages.bind(this);
 
         this.removeActivity = this.removeActivity.bind(this);
     }
@@ -182,15 +186,73 @@ class AdminPackages extends Component {
         // $('#setSchedule').modal('handleUpdate')
     }
 
-    handleLoadImages(files)
+    handleOpenMapLoad(id)
     {
-        // console.log(files)
+        this.setState({
+            id: id,
+            openMapLoad: true
+        });
     }
 
     handleCloseImageLoad()
     {
         this.setState({
-            openImgLoad: false
+            openMapLoad: false
+        });
+    }
+
+    handleSubmitMap(files)
+    {
+        this.setState({
+            uploading: true,
+            progress: 0,
+        });
+
+        var ref = firebase.storage().ref();
+        var db = firebase.firestore();
+
+        var refs = ''
+
+        var accessThis = this;
+
+        var imgRef = 'packages/'+ accessThis.state.id + '/' + accessThis.state.id + '_map' + '.png'
+        var refChild = ref.child(imgRef)
+
+        var uploadTask = refChild.put(files[0])
+
+        uploadTask.on('state_changed', function(snapshot) {
+            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+
+            accessThis.setState({
+                progress: progress
+            })
+        }, function(error) {
+            console.log(error)
+        }, function() {
+            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                db.collection("Paquetes").doc(accessThis.state.id)
+                .set( {
+                    mapRef: imgRef,
+                    map: downloadURL
+                }, { merge: true} )
+                .then(function() {
+                    // console.log("Document written with ID: ", docRef.id);
+                    var message = 'Mapa agregado exitosamente.'
+                    var typeMsg = 'success'
+
+                    setTimeout(() =>
+                    {
+                        accessThis.setState({
+                            modalMsg: message,
+                            modalType: typeMsg,
+                            showModal: true,
+                            openMapLoad: false,
+                            images: [],
+                            uploading: false
+                        });
+                    }, 1000);
+                })
+            })
         });
     }
 
@@ -198,7 +260,15 @@ class AdminPackages extends Component {
     {
         this.setState({
             id: id,
+            maxFiles: 50,
             openImgLoad: true
+        });
+    }
+
+    handleCloseImageLoad()
+    {
+        this.setState({
+            openImgLoad: false
         });
     }
 
@@ -274,6 +344,7 @@ class AdminPackages extends Component {
                 if (doc.exists)
                 {
                     var newSched = doc.data().schedule
+                    // console.log(newSched)
                     this.setState({
                         activities: newSched
                     }, () => { this.forceUpdate() })
@@ -284,14 +355,36 @@ class AdminPackages extends Component {
 
     removeActivity(index)
     {
+        var newList = this.state.activities.filter((e, i) => {
+            // console.log(this.state.activities[i].id + ", " + index)
+            return e.id != index
+        })
         this.setState({
-            activities: this.state.activities.filter((e, i) => {
-                // console.log(this.state.activities[i].id + ", " + index)
-                return this.state.activities[i].id != index
-            })
+                activities: newList
         });
 
         this.forceUpdate();
+
+        // let activities = this.state.activities;
+        //
+        // var list = JSON.parse(JSON.stringify(activities));
+        //
+        // var newList = list.filter(function(e) {
+        //     // console.log(this.state.activities[i].id + ", " + index)
+        //     return e.id != index
+        // })
+        //
+        // newList.forEach(function(item, i) {
+        //     newList[i].id = i
+        // })
+        //
+        // console.log(newList)
+        // this.setState({
+        //     activities: newList
+        // }, () => { this.forceUpdate() });
+        //
+        // console.log(this.state.activities)
+
     }
 
     addActivity(e)
@@ -301,7 +394,7 @@ class AdminPackages extends Component {
         var descrip = this.state.descripActiv;
         var hora = parseInt(this.state.durHora);
         var min = parseInt(this.state.durMin);
-        var id = this.state.lastActId;
+        var id = uniqid();
         this.setState({
                 activities: [...this.state.activities, {id, descrip, hora, min}],
                 lastActId: this.state.lastActId+1
@@ -311,6 +404,13 @@ class AdminPackages extends Component {
 
     _onListChange(newList, movedItem)
     {
+        // var oldIndex = movedItem.id
+        // var index = newList.indexOf(movedItem)
+        //
+        // newList[index].id = index
+        // newList[oldIndex].id = oldIndex
+        //
+        // console.log("asdasd", newList)
         this.setState({activities: newList});
     }
 
@@ -358,7 +458,8 @@ class AdminPackages extends Component {
                 descripActiv: '',
                 durHora: 1,
                 durMin: 0,
-                inicio: '07:00'
+                inicio: '07:00',
+                lastActId: 0
             });
         })
         .catch((err) => {
@@ -408,7 +509,6 @@ class AdminPackages extends Component {
         const value = target.type === 'checkbox' ? target.checked : target.value;
         const name = target.name == '' ? target.id : target.name;
 
-
         // Actualiza el campo que se modifico
         this.setState({
             [name]: value
@@ -418,6 +518,8 @@ class AdminPackages extends Component {
     render()
     {
         var title = this.state.uploading?<div>Subir imagenes <LinearProgress variant="determinate" value={this.state.progress}/></div>:<div>Subir imagenes</div>
+
+        var titleMap = this.state.uploading?<div>Subir Mapa <LinearProgress variant="determinate" value={this.state.progress}/></div>:<div>Subir Mapa</div>
         return (
             <div>
                 <AdminNavigation />
@@ -472,7 +574,7 @@ class AdminPackages extends Component {
                                                 </IconButton>
                                             </Tooltip>
                                             <Tooltip title="Agregar mapa">
-                                                <IconButton>
+                                                <IconButton onClick={this.handleOpenMapLoad.bind(this, rowData.id)}>
                                                     <LocationOnIcon/>
                                                 </IconButton>
                                             </Tooltip>
@@ -845,6 +947,7 @@ class AdminPackages extends Component {
                                     })
                                 })
                         }}
+                        isLoading={this.state.loadingContent}
                         options={{
                             actionsColumnIndex: -1,
                             headerStyle: {
@@ -943,8 +1046,7 @@ class AdminPackages extends Component {
                                                 template={SchedBuilder}
                                                 onMoveEnd={(newList, movedItem) => this._onListChange(newList, movedItem)}
                                                 list={this.state.activities}
-                                                onDelete={this.removeActivity}
-                                                commonProps={{onDelete: this.removeActivity}}
+                                                commonProps={{delete: this.removeActivity}}
                                               />
                                         </div>
                                     </div>
@@ -966,12 +1068,23 @@ class AdminPackages extends Component {
                     <DropzoneDialog
                         open={this.state.openImgLoad}
                         onSave={this.handleSubmitImages}
-                        onChange={this.handleLoadImages}
                         dialogTitle={title}
+                        filesLimit={50}
+                        acceptedFiles={['image/*']}
+                        showPreviews={true}
+                        maxFileSize={10000000}
+                        onClose={this.handleCloseImageLoad}
+                    />
+
+                    <DropzoneDialog
+                        open={this.state.openMapLoad}
+                        onSave={this.handleSubmitMap}
+                        dialogTitle={titleMap}
+                        filesLimit={1}
                         acceptedFiles={['image/*']}
                         showPreviews={true}
                         maxFileSize={5000000}
-                        onClose={this.handleCloseImageLoad}
+                        onClose={this.handleCloseMapLoad}
                     />
                 </Layout>
 

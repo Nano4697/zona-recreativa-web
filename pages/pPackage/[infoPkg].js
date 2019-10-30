@@ -140,6 +140,8 @@ class infoPkg extends Component {
 
             var note = (breakfast=='' && lunch=='' && coffe=='')?'':<p className="mt-2" style={{fontSize: "14px"}}>Nota: La opciones de alimentación pueden variar</p>
 
+        var map = info.hasOwnProperty('map') ? <div> <h3 className="row mb-3"> Mapa </h3> <img className="row col-12" src={info.map} /> </div> : ''
+
             return <div>
                 <Navigation />
                 <h1 className="pt-4 text-center mb-4">{info.name}</h1>
@@ -167,13 +169,14 @@ class infoPkg extends Component {
                                 {coffe}
                                 {note}
                             </div>
+                            { map }
                         </div>
                         <div className="col-md-6 col-sm-11 col-11 pl-sm-4 pl-0 mt-3">
                             <h3 className="mb-3">
                                 Itinerario
                             </h3>
                             <Timeline info={this.state.schedule}/>
-                            <h3 className="mb-3">
+                            <h3 className="mt-4 mb-3">
                                 Capacidad
                             </h3>
                             <p>Este viaje tiene una capacidad máxima de <b>{info.capacity} personas</b></p>

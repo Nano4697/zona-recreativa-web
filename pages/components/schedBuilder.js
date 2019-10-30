@@ -5,7 +5,7 @@ class SchedBuilder extends Component {
     constructor(props)
     {
         super(props);
-        console.log (props)
+        // console.log ("schedBuilder", props)
 
         var propsId = '';
         var propsDesc = '';
@@ -32,7 +32,7 @@ class SchedBuilder extends Component {
 
     removeActivity(id)
     {
-        this.props.commonProps.onDelete(this.state.id)
+        this.props.commonProps.delete(this.state.id)
     }
 
     render()

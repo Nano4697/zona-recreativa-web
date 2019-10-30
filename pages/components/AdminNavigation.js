@@ -42,6 +42,7 @@ class AdminNavigation extends Component {
             // Sign-out successful.
             Router.push('/');
         }).catch(function(error) {
+            console.log(error)
             // An error happened.
         });
     }
@@ -54,7 +55,7 @@ class AdminNavigation extends Component {
                 Logotipo que va en el centro
                  */
                 }
-                <Navbar.Brand className="d-none d-md-block col-xl-1 col-lg-1 col-2 ml-lg-5 ml-0 mr-0 px-0">
+                <Navbar.Brand className="d-none d-md-block col-xl-2 col-2 ml-lg-5 ml-0 mr-0 px-0">
                     <Link href="/adminMain">
                         <Image className="" src="https://firebasestorage.googleapis.com/v0/b/zona-recreativa-cr.appspot.com/o/res%2Flogo-2.png?alt=media&token=5af0e6da-07e4-490e-8d61-bebc7b456ce3"  style={{cursor:'pointer', height: "40px" }} fluid/>
                     </Link>
