@@ -3,6 +3,8 @@ import Navigation from './components/Navigation';
 import Router from 'next/router'
 import { Formik, Field } from 'formik';
 import React, { Component } from 'react';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarAlert from './components/SnackbarAlert'
 
 import { initFirebase } from '../lib/firebase'
 
@@ -23,7 +25,10 @@ class AdminLogin extends Component
         //inicializa state
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            showModal: false,
+            modalMsg: '',
+            modalType: ''
         };// Initialize firebase
 
         var prom =  new Promise((resolve, reject) =>
@@ -37,6 +42,7 @@ class AdminLogin extends Component
         //Se necesita hacer bind a todas la funciones que se usen dentro de la clase.
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.closeModal = this.closeModal.bind(this);
     }
 
     componentDidMount()
@@ -61,12 +67,6 @@ class AdminLogin extends Component
         });
     }
 
-    static async getInitialProps({query})
-    {
-
-        return {}
-    }
-
     //Se activa cuando se presiona enviar
     handleSubmit(e)
     {
@@ -78,6 +78,8 @@ class AdminLogin extends Component
 
         var email = this.state.username;
         var password = this.state.password;
+
+        var accessThis = this;
 
 
         firebase.auth().setPersistence(fb.auth.Auth.Persistence.LOCAL)
@@ -96,6 +98,25 @@ class AdminLogin extends Component
                 var errorMessage = error.message;
                 // ...
                 console.log(error)
+
+                var message = '';
+
+                if (error.code == 'auth/wrong-password')
+                    message = 'Contraseña incorrecta'
+                else if (error.code == "auth/user-not-found")
+                    message = 'No se encontró el usuario'
+                else if (error.code == "auth/invalid-email")
+                    message = 'Correo invalido'
+                else if (error.code == 'auth/too-many-requests')
+                    message = 'Demasiados intentos. Intentelo de nuevo despues de un rato'
+                else
+                    message = 'Ocurrio un error, intentelo mas tarde'
+
+                accessThis.setState({
+                    showModal: true,
+                    modalMsg: message,
+                    modalType: 'error'
+                })
             });
         });
         // Router.push('/adminMain');
@@ -120,43 +141,66 @@ class AdminLogin extends Component
         // console.log(this.state)
     }
 
+    closeModal()
+    {
+        this.setState({
+            showModal: false
+        })
+    }
+
     render ()
     {
         return(
             <div>
+
                 <Navigation />
                 <Layout>
-                <div className="row justify-content-center">
-                    <h1 className="mt-2 mb-4">
-                        Iniciar Sesión
-                    </h1>
-                </div>
-                <div className="login-admin-group row justify-content-center">
-                    <div className="col-4">
-                        <form onSubmit={this.handleSubmit}>
-                            <div className="form-group">
-                                <label htmlFor="username">Nombre de usuario:</label>
-                                <input type="text" className="form-control mx-4" id="username" name="username" placeholder="Nombre de usuario" value={this.state.username} onChange={this.handleInputChange}/>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="password">Contraseña:</label>
-                                <input type="password" className="form-control mx-4" id="password" name="password" placeholder="Contraseña" value={this.state.password} onChange={this.handleInputChange}/>
-                            </div>
-                            <div className="form-button" style={{textAlign: 'center'}}>
-                                <button className="btn btn-dark" type="submit">Iniciar sesión</button>
-                            </div>
-                        </form>
+                    <Snackbar
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                        open={this.state.showModal}
+                        autoHideDuration={5000}
+                        onClose={this.closeModal}
+                      >
+                         <SnackbarAlert
+                            onClose={this.closeModal}
+                            variant={this.state.modalType}
+                            message={this.state.modalMsg}
+                        />
+                    </Snackbar>
+                    <div className="row justify-content-center">
+                        <h1 className="mt-2 mb-4">
+                            Iniciar Sesión
+                        </h1>
+                    </div>
+                    <div className="login-admin-group row justify-content-center">
+                        <div className="col-4">
+                            <form onSubmit={this.handleSubmit}>
+                                <div className="form-group">
+                                    <label htmlFor="username">Nombre de usuario:</label>
+                                    <input type="text" className="form-control mx-4" id="username" name="username" placeholder="Nombre de usuario" value={this.state.username} onChange={this.handleInputChange}/>
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="password">Contraseña:</label>
+                                    <input type="password" className="form-control mx-4" id="password" name="password" placeholder="Contraseña" value={this.state.password} onChange={this.handleInputChange}/>
+                                </div>
+                                <div className="form-button" style={{textAlign: 'center'}}>
+                                    <button className="btn btn-dark" type="submit">Iniciar sesión</button>
+                                </div>
+                            </form>
 
-                        <style jsx>{`
-                            .login-admin-group button {
-                                box-sizing: border-box;
-                                transition: all 0.2s;
-                            }
-                            .login-admin-group button:hover {
-                                color: #000000;
-                                background-color: #42c8f5;
-                            }
-                            `}</style>
+                            <style jsx>{
+                                `.login-admin-group button {
+                                    box-sizing: border-box;
+                                    transition: all 0.2s;
+                                }
+                                .login-admin-group button:hover {
+                                    color: #000000;
+                                    background-color: #42c8f5;
+                                }`
+                            }</style>
                         </div>
                     </div>
                 </Layout>
