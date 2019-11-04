@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import MaterialTable from "material-table";
 import Snackbar from '@material-ui/core/Snackbar';
+import TextField from '@material-ui/core/TextField';
 import Router from 'next/router';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
+
 
 //Components
 import AdminNavigation from './components/AdminNavigation';
@@ -17,7 +23,13 @@ const uuidv1 = require('uuid/v1');
 var firebase;
 import * as fb from "firebase/app";
 
-class adminSeguros extends Component
+const searchOptions = {
+    bounds:{north: 11.2863, west: -85.9991, south: 7.9939, east: -82.5686},
+    componentRestrictions: {country: 'cr'},
+    types: ['(regions)']
+}
+
+class adminPersonalM extends Component
 {
     constructor(props)
     {
@@ -29,21 +41,56 @@ class adminSeguros extends Component
             modalType: '',
             modalMsg: '',
             loadingContent: true,
+            address: '',
+            location: {},
 
 
             columns: [
-                { title: 'Cedula', field: 'cedula' },
                 { title: 'Nombre', field: 'nombre' },
-                { title: 'Apellidos', field: 'apellidos' },
-                { title: 'Rige', field: 'vige', type: 'date' },
-                { title: 'Vencimiento', field: 'vence', type: 'date' },
-                { title: 'Cobertura', field: 'cobertura' }
+                { title: 'Empresa', field: 'tipo', lookup: { publico: 'Publico', privado: 'Privado' }, initialEditValue: 'publico'},
+                { title: 'Zona de cobertura', field: 'zona.address', editComponent: props => (
+                    <PlacesAutocomplete value={this.state.address} onChange={this.handleChange} onSelect={this.handleSelect} searchOptions={searchOptions}>
+                        {
+                            ({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+                                <div>
+                                    <TextField
+                                        {...getInputProps({
+                                            placeholder: 'Search Places ...',
+                                            className: 'location-search-input',
+                                          })}
+                                    />
+                                    <div className="autocomplete-dropdown-container">
+                                        {loading && <div>Loading...</div>}
+                                        {suggestions.map(suggestion => {
+                                            const className = suggestion.active
+                                            ? 'suggestion-item--active'
+                                            : 'suggestion-item';
+                                            // inline style for demonstration purpose
+                                            const style = suggestion.active
+                                            ? { backgroundColor: '#fafafa', cursor: 'pointer' }
+                                            : { backgroundColor: '#ffffff', cursor: 'pointer' };
+                                            return (
+                                                <div
+                                                {...getSuggestionItemProps(suggestion, {
+                                                    className,
+                                                    style,
+                                                })}
+                                                >
+                                                <span>{suggestion.description}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )
+                        }
+                    </PlacesAutocomplete>
+                ) },
+                { title: 'Telefono', field: 'phone' }
             ]
         }
 
-
         firebase = initFirebase()
-
 
         this.closeModal = this.closeModal.bind(this)
     }
@@ -56,8 +103,11 @@ class adminSeguros extends Component
 
         var user = firebase.auth().currentUser;
 
-        if (!user)
-            // Router.push('/')
+        if (user) {
+          // console.log('user logged', user)
+        } else {
+          // No user is signed in.
+        }
 
         var accessThis = this;
         firebase.auth().onAuthStateChanged(user =>
@@ -73,7 +123,7 @@ class adminSeguros extends Component
                 var db = firebase.firestore()
                 var items = []
 
-                db.collection("Empleados").where("active", "==", true)
+                db.collection("PersonalMedico").where("active", "==", true)
                 .get()
                 .then((querySnapshot) => {
                     // console.log(querySnapshot)
@@ -82,20 +132,16 @@ class adminSeguros extends Component
                         {
                             var tempData = doc.data()
 
-                            tempData.vige = tempData.vige.toDate()
-                            tempData.vence = tempData.vence.toDate()
-                            // console.log(tempData)
                             items.push(tempData);
                         }
                     });
-                    this.setState({
+                    accessThis.setState({
                         items,
                         loadingContent: false
-                    }, () => this.forceUpdate())
+                    })
                 })
                 .catch((error) => {
-                    console.log(error)
-                    this.setState({
+                    accessThis.setState({
                         showModal: true,
                         modalMsg: 'Error al cargar los datos. Intentelo mas tarde',
                         modalType: 'error',
@@ -120,6 +166,24 @@ class adminSeguros extends Component
         })
     }
 
+    handleChange = address => {
+        this.setState({ address });
+      };
+
+      handleSelect = address => {
+        geocodeByAddress(address)
+          .then(results => getLatLng(results[0]))
+          .then(latLng => {
+              this.setState({
+                  address: address,
+                  location: latLng
+              });
+              // console.log('Success', latLng)
+              // console.log(this.state.items)
+          })
+          .catch(error => console.error('Error', error));
+      };
+
     render () {
         return (
             <div>
@@ -127,7 +191,7 @@ class adminSeguros extends Component
                 <Layout>
                     <div className="row justify-content-center">
                         <h1 className="mt-2 mb-4">
-                            Administración de seguros laborales
+                            Administración de personal médico
                         </h1>
                     </div>
                     <Snackbar
@@ -159,15 +223,13 @@ class adminSeguros extends Component
                                     // newData.price = '₡ ' + newData.price;
 
                                     //check if there is any empty value
-                                    if (!newData.hasOwnProperty('nombre') || !newData.hasOwnProperty('apellidos') ||
-                                        !newData.hasOwnProperty('numeroSeguro') || !newData.hasOwnProperty('vige') ||
-                                        !newData.hasOwnProperty('vence'))
+                                    if (!newData.hasOwnProperty('nombre'))
                                     {
                                         this.setState({
-                                            modalMsg: 'Debe llenar todos los datos',
+                                            modalMsg: 'Debe ingresar un nombre para el personal medico',
                                             modalType: 'error',
                                             showModal: tue
-                                        }, () => reject('emptyFields'))
+                                        }, () => reject('noName'))
                                     }
                                     else
                                     {
@@ -176,10 +238,15 @@ class adminSeguros extends Component
                                         var db = firebase.firestore();
                                         var accessThis = this
 
+                                        newData.zona = {
+                                            address: accessThis.state.address,
+                                            location: accessThis.state.location
+                                        }
+
                                         // console.log(newData)
 
                                         // load thumbnail
-                                        db.collection("Empleados").doc(newData.id).set(newData)
+                                        db.collection("PersonalMedico").doc(newData.id).set(newData)
                                         .then(function(docRef) {
                                             // console.log("Document written with ID: ", docRef.id);
 
@@ -187,7 +254,7 @@ class adminSeguros extends Component
                                             var message = ''
                                             var typeMsg = ''
 
-                                            message = 'Empleado agregado exitosamente.'
+                                            message = 'Personal medico agregado exitosamente.'
                                             typeMsg = 'success'
 
                                             // console.log(data)
@@ -200,7 +267,7 @@ class adminSeguros extends Component
                                         })
                                         .catch((error) => {
                                             accessThis.setState({
-                                                modalMsg: 'Error al agregar el empleado. Intentelo más tarde.',
+                                                modalMsg: 'Error al agregar el personal medico. Intentelo más tarde.',
                                                 modalType: 'error',
                                                 showModal: true
                                             }, () => reject());
@@ -214,43 +281,30 @@ class adminSeguros extends Component
                                     const index = data.indexOf(oldData);
                                     data[index] = newData;
 
-                                    if (!newData.hasOwnProperty('nombre') || !newData.hasOwnProperty('apellidos') ||
-                                        !newData.hasOwnProperty('numeroSeguro') || !newData.hasOwnProperty('vige') ||
-                                        !newData.hasOwnProperty('vence'))
+                                    if (!newData.hasOwnProperty('nombre'))
                                     {
                                         this.setState({
-                                            modalMsg: 'Debe llenar todos los datos',
+                                            modalMsg: 'El personal medico debe tener un nombre',
                                             modalType: 'error',
                                             showModal: true
-                                        }, () => reject('emptyFields'))
+                                        }, () => reject('noName'))
                                     }
                                     else
                                     {
                                         var db = firebase.firestore();
                                         var accessThis = this
 
-                                        var storeData = JSON.parse(JSON.stringify(newData));
-                                        // var storeData = newData
+                                        newData.zona = {
+                                            address: accessThis.state.address,
+                                            location: accessThis.state.location
+                                        }
 
-                                        if (typeof newData.vige == 'string')
-                                            storeData.vige = fb.firestore.Timestamp.fromDate(new Date(newData.vige))
-                                        else
-                                            storeData.vige = fb.firestore.Timestamp.fromDate(newData.vige)
+                                        // console.log(newData, typeof newData.vige)
 
-                                        if (typeof newData.vence == 'string')
-                                            storeData.vence = fb.firestore.Timestamp.fromDate(new Date(newData.vence))
-                                        else
-                                            storeData.vence = fb.firestore.Timestamp.fromDate(newData.vence)
-
-                                        // newData.vige = newData.vige.toDate()
-                                        // newData.vence = newData.vence.toDate()
-
-                                        console.log(newData, typeof newData.vige)
-
-                                        db.collection("Empleados").doc(newData.id).set(storeData)
+                                        db.collection("PersonalMedico").doc(newData.id).set(newData)
                                         .then(function() {
                                             // console.log("Document written with ID: ", docRef.id);
-                                            var message = 'Empleado actualizado exitosamente.'
+                                            var message = 'Personal medico actualizado exitosamente.'
                                             var typeMsg = 'success'
 
                                             // console.log(message, typeMsg)
@@ -263,7 +317,7 @@ class adminSeguros extends Component
                                         })
                                         .catch((error) => {
                                             accessThis.setState({
-                                                modalMsg: 'Error al actualizar los datos empleado. Intentelo más tarde.',
+                                                modalMsg: 'Error al actualizar el personal medico. Intentelo más tarde.',
                                                 modalType: 'error',
                                                 showModal: true
                                             }, () => reject());
@@ -282,7 +336,7 @@ class adminSeguros extends Component
                                     // console.log(oldData)
 
                                     // load thumbnail
-                                    db.collection("Empleados").doc(oldData.id).set({
+                                    db.collection("PersonalMedico").doc(oldData.id).set({
                                             active: false
                                         }, { merge: true })
                                     .then(function() {
@@ -290,7 +344,7 @@ class adminSeguros extends Component
 
                                         data.splice(index, 1);
 
-                                        var message = 'Empleado eliminado exitosamente.'
+                                        var message = 'Personal medico eliminado exitosamente.'
                                         var typeMsg = 'success'
 
                                         accessThis.setState({
@@ -302,7 +356,7 @@ class adminSeguros extends Component
                                     })
                                     .catch((err) => {
                                         accessThis.setState({
-                                            modalMsg: 'Error al eliminar el empleado. Intentelo más tarde.',
+                                            modalMsg: 'Error al eliminar el personal medico. Intentelo más tarde.',
                                             modalType: 'error',
                                             showModal: true
                                         }, () => reject());
@@ -314,16 +368,16 @@ class adminSeguros extends Component
                             actionsColumnIndex: -1,
                             filtering: false,
                             addRowPosition: 'first',
-                            search: true,
                             headerStyle: {
                                 backgroundColor: '#0fb4f0'
                             }
                         }}
                     />
+                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDd8PFTlyiBJe5-fpQyJk7v4BlNH55dCzk&libraries=places"></script>
                 </Layout>
             </div>
         )
     }
 }
 
-export default adminSeguros
+export default adminPersonalM

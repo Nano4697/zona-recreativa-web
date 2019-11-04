@@ -48,6 +48,8 @@ Also you'll need the following packages:
 
 `npm i regenerator-runtime`
 
+`npm i google-maps-react`
+
 ## About
 
 Timeline based on a tutorial blog made by Florian Pop
