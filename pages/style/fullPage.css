@@ -1,4 +1,10 @@
-html, body
+/* html, body
 {
     height: 100vh
-};
+}; */
+
+.largeIcon
+{
+    height: 120px;
+    width: 120px;
+}

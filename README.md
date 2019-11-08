@@ -46,9 +46,7 @@ Also you'll need the following packages:
 
 `npm install --save material-ui-dropzone`
 
-`npm i regenerator-runtime`
-
-`npm i google-maps-react`
+`npm i regenerator-runtime google-maps-react`
 
 ## About
 

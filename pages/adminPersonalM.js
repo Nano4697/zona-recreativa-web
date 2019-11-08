@@ -373,7 +373,7 @@ class adminPersonalM extends Component
                             }
                         }}
                     />
-                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDd8PFTlyiBJe5-fpQyJk7v4BlNH55dCzk&libraries=places"></script>
+                    <script src={"https://maps.googleapis.com/maps/api/js?key=" + process.env.NEXT_STATIC_MAP_API + "&libraries=places"}></script>
                 </Layout>
             </div>
         )
