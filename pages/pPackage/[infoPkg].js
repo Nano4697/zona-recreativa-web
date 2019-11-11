@@ -13,9 +13,9 @@ import Timeline from '../components/Timeline'
 import Footer from '../components/Footer'
 import Album from '../components/Album'
 
-//Others
-import data from '../data/infoPackage.json';
-import imgs from '../data/packageImg.json'
+// //Others
+// import data from '../data/infoPackage.json';
+// import imgs from '../data/packageImg.json'
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 // import * as firebase from "firebase/app";

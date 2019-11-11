@@ -10,6 +10,8 @@ class Album extends React.Component {
             selectAllChecked: false
         };
 
+        console.log("Album", props)
+
         this.onSelectImage = this.onSelectImage.bind(this);
         this.getSelectedImages = this.getSelectedImages.bind(this);
         this.onClickSelectAll = this.onClickSelectAll.bind(this);
@@ -85,53 +87,5 @@ class Album extends React.Component {
         );
     }
 }
-
-
-Album.defaultProps = {
-    images: [
-        {
-            src: require("../resources/a.jpg"),
-            thumbnail: require("../resources/a.jpg"),
-            thumbnailWidth: 12,
-            thumbnailHeight: 10,
-            caption: "After Rain (Jeshu John - designerspics.com)"
-        },
-        {
-            src: require("../resources/d.jpg"),
-            thumbnail: require("../resources/d.jpg"),
-            thumbnailWidth: 12,
-            thumbnailHeight: 10,
-            caption: "After Rain (Jeshu John - designerspics.com)"
-        },
-        {
-            src: require("../resources/c.jpg"),
-            thumbnail: require("../resources/c.jpg"),
-            thumbnailWidth: 12,
-            thumbnailHeight: 10,
-            caption: "After Rain (Jeshu John - designerspics.com)"
-        },
-        {
-            src: require("../resources/b.jpg"),
-            thumbnail: require("../resources/b.jpg"),
-            thumbnailWidth: 12,
-            thumbnailHeight: 10,
-            caption: "After Rain (Jeshu John - designerspics.com)"
-        },
-        {
-            src: require("../resources/e.jpg"),
-            thumbnail: require("../resources/e.jpg"),
-            thumbnailWidth: 12,
-            thumbnailHeight: 10,
-            caption: "After Rain (Jeshu John - designerspics.com)"
-        },
-        {
-            src: require("../resources/f.jpg"),
-            thumbnail: require("../resources/f.jpg"),
-            thumbnailWidth: 12,
-            thumbnailHeight: 10,
-            caption: "After Rain (Jeshu John - designerspics.com)"
-        }
-    ]
-};
 
 export default Album

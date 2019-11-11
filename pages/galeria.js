@@ -54,8 +54,8 @@ class Galeria extends Component
         // Actualiza el campo que se modifico
         this.setState({
             [name]: value
-        });
-        console.log(this.state)
+        }, () => {console.log(this.state)});
+
     }
 
     render() {

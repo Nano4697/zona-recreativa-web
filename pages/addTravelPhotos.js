@@ -7,6 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarAlert from './components/SnackbarAlert';
 import Router from 'next/router';
+import Resizer from 'react-image-file-resizer';
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 import "firebase/auth";
@@ -100,49 +101,78 @@ class addTravelPhotos extends Component
         var refs = []
 
         var accessThis = this;
+        var processedImgs = [];
+        var imgs = this.state.photos;
 
-        console.log("Asdasjfkalsk")
+        Promise.all(imgs.map((img, i) => {
+                return new Promise((resolve, reject) => {
+                    let thumbnailURI = '';
+                    let imgURI = '';
 
-        Promise.all(this.state.photos.map( (file, i) => {
-            var imgRef = 'tripPhotos/'+ accessThis.state.code + '/' + accessThis.state.code + '_' + i + '.png'
-            refs.push(imgRef)
-            var refChild = ref.child(imgRef)
+                    if (typeof img !== 'undefined')
+                    {
+                        Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
+                            uri => {
+                                thumbnailURI= uri
 
-            var uploadTask = refChild.put(file)
-
-            uploadTask.on('state_changed', null, null, function() {
-                accessThis.setState({
-                    progress: accessThis.state.progress + 100/total
+                                Resizer.imageFileResizer(img, 1500, 1500, 'PNG', 100, 0,
+                                    uri => {
+                                        imgURI= uri;
+                                        resolve({thumbnailURI, imgURI, thumbnailWidth: 75, thumbnailHeight: 75})
+                                    },
+                                    'base64'
+                                );
+                            },
+                            'base64'
+                        );
+                    }
                 })
-            });
-
-            return uploadTask.then(function(snapshot) {
-                    return snapshot.ref.getDownloadURL()
-                })
-            }
-        ))
-        .then((values) => {
-            // console.log(values)
-
-            db.collection("ImagenesViaje").doc(accessThis.state.code).set( {id: accessThis.state.code, imgs: values, refs: refs})
-            .then(function() {
-                // console.log("Document written with ID: ", docRef.id);
-                var message = 'Imagenes cargadas exitosamente.'
-                var typeMsg = 'success'
-
-                setTimeout(() =>
-                {
-                    accessThis.setState({
-                        modalMsg: message,
-                        modalType: typeMsg,
-                        showModal: true,
-                        openImgLoad: false,
-                        images: [],
-                        uploading: false
-                    });
-                }, 1000);
             })
+        )
+        .then((success) => {
+            console.log(success)
         })
+
+        // Promise.all(this.state.photos.map( (file, i) => {
+        //     var imgRef = 'tripPhotos/'+ accessThis.state.code + '/' + accessThis.state.code + '_' + i + '.png'
+        //     refs.push(imgRef)
+        //     var refChild = ref.child(imgRef)
+        //
+        //     var uploadTask = refChild.put(file)
+        //
+        //     uploadTask.on('state_changed', null, null, function() {
+        //         accessThis.setState({
+        //             progress: accessThis.state.progress + 100/total
+        //         })
+        //     });
+        //
+        //     return uploadTask.then(function(snapshot) {
+        //             return snapshot.ref.getDownloadURL()
+        //         })
+        //     }
+        // ))
+        // .then((values) => {
+        //     // console.log(values)
+        //
+        //     db.collection("ImagenesViaje").doc(accessThis.state.code).set( {id: accessThis.state.code, nombre: accessThis.state.name, imgs: values, refs: refs})
+        //     .then(function() {
+        //         // console.log("Document written with ID: ", docRef.id);
+        //         var message = 'Imagenes cargadas exitosamente.'
+        //         var typeMsg = 'success'
+        //
+        //         setTimeout(() =>
+        //         {
+        //             accessThis.setState({
+        //                 modalMsg: message,
+        //                 modalType: typeMsg,
+        //                 showModal: true,
+        //                 openImgLoad: false,
+        //                 images: [],
+        //                 uploading: false
+        //             });
+        //         }, 1000);
+        //     })
+        // })
     }
 
     handleInputChange(e)
@@ -209,7 +239,7 @@ class addTravelPhotos extends Component
                                 onChange={this.handleChangePhotos.bind(this)}
                                 filesLimit={250}
                                 acceptedFiles={['image/*']}
-                                showPreviews={true}
+                                showPreviews={false}
                                 maxFileSize={5000000}
                             />
                         </div>

@@ -1,6 +1,6 @@
-// Packages
-import Router from 'next/router'
-import fetch from 'isomorphic-unfetch';
+//Packages
+import React, { Component } from 'react';
+import { useRouter } from 'next/router';
 import Error from 'next/error'
 
 // Components
@@ -8,42 +8,83 @@ import Layout from '../components/GeneralLayout';
 import Navigation from '../components/Navigation';
 import Album from '../components/Album'
 
-// Others
-import data from '../data/photos.json';
+// Add the Firebase products that you want to use
+import "firebase/firestore";
+import "firebase/storage";
 
-const album = props => {
-    if (props.errorCode) {
-      //return <Error statusCode={props.errorCode} />
-    }
-        return <div>
-        <Navigation />
-        <Layout>
-            <h1 className="pt-4 text-center mb-4">{props.info.name}</h1>
-            <div className="container mb-5 pt-sm-auto ">
-                <Album images={props.info.imgs}/>
-            </div>
-        </Layout>
-    </div>
-};
+import { initFirebase } from '../../lib/firebase'
 
-album.getInitialProps = async function(context) {
-    const { album } = context.query;
-  //
-  // return { infoPkg };
+var firebase;
 
-    var errorCode = false;
+class album extends Component {
+    constructor(props)
+    {
+        super(props)
 
-    for (var i = 0; i < data.length; i++) {
-        if (typeof data[i].id !== 'undefined' && data[i].id == album)
+        this.state = {
+            errorCode: false,
+            data: {}
+        }
+
+        var prom =  new Promise((resolve, reject) =>
         {
-            var result = data[i];
-            // console.log(result)
-            return { errorCode, info: result };
+            firebase = initFirebase()
+            resolve()
+        })
+
+        prom.then((success) => {
+        // console.log(fire.firestore())
+            var db = firebase.firestore()
+            db.collection("ImagenesViaje").where("id", "==", props.info)
+            .get()
+            .then((querySnapshot) => {
+                if (querySnapshot.length == 0)
+                    this.state.errorCode = 404;
+
+                querySnapshot.forEach((doc) => {
+                    if (doc.exists)
+                    {
+                        this.state.data = doc.data();
+
+                        this.forceUpdate();
+                        console.log("getData", this.state.data)
+                    }
+                });
+            })
+            .catch((err) => {
+                console.log(err)
+                this.state.errorCode = 204;
+            });
+        })
+    }
+
+    static async getInitialProps(context)
+    {
+        const { album } = context.query;
+
+        console.log("getinitial", context)
+
+        return { info: album }
+    };
+
+    render() {
+        if (this.state.errorCode) {
+            return <Error statusCode={this.state.errorCode} />
+        }
+        else {
+            var album = this.state.data.hasOwnProperty('imgs')?<Album images={this.state.data.imgs}/>:''
+            return (
+            <div>
+                <Navigation />
+                <Layout>
+                    <h1 className="pt-4 text-center mb-4">{this.state.data.nombre}</h1>
+                    <div className="container mb-5 pt-sm-auto ">
+                        {album}
+                    </div>
+                </Layout>
+            </div> )
         }
     }
-
-    errorCode = 204;
-    return { errorCode, info: {} }
-};
+}
 
 export default album;
