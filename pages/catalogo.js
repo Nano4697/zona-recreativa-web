@@ -50,7 +50,7 @@ class Catalogo extends Component {
         // console.log(fire.firestore())
             var db = firebase.firestore()
             db.collection("Paquetes")
-            .where('active', '==', true)
+            //.where('active', '==', true)
             .get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {

@@ -87,8 +87,9 @@ class AdminMain extends Component {
                         <div className="justify-content-center mx-3">
                             <div className="row justify-content-center">
                                 <IconButton>
-
-                                    <SupervisorAccountIcon style={{fontSize: '7rem', color: '#007f3d'}}/>
+                                    <Link href="/addAdmin">
+                                        <SupervisorAccountIcon style={{fontSize: '7rem', color: '#007f3d'}}/>
+                                    </Link>
                                 </IconButton>
                             </div>
                             <h5 className="text-center">Gestionar empleados</h5>

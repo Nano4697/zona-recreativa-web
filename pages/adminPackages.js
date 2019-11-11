@@ -116,7 +116,7 @@ class AdminPackages extends Component {
             var db = firebase.firestore()
             var items = []
 
-            db.collection("Paquetes").where("active", "==", true)
+            db.collection("Paquetes")/*.where("active", "==", true)*/
             .get()
             .then((querySnapshot) => {
                 // console.log(querySnapshot)
@@ -364,26 +364,6 @@ class AdminPackages extends Component {
         });
 
         this.forceUpdate();
-
-        // let activities = this.state.activities;
-        //
-        // var list = JSON.parse(JSON.stringify(activities));
-        //
-        // var newList = list.filter(function(e) {
-        //     // console.log(this.state.activities[i].id + ", " + index)
-        //     return e.id != index
-        // })
-        //
-        // newList.forEach(function(item, i) {
-        //     newList[i].id = i
-        // })
-        //
-        // console.log(newList)
-        // this.setState({
-        //     activities: newList
-        // }, () => { this.forceUpdate() });
-        //
-        // console.log(this.state.activities)
 
     }
 
@@ -920,9 +900,10 @@ class AdminPackages extends Component {
                                     // console.log(oldData)
 
                                     // load thumbnail
-                                    db.collection("Paquetes").doc(oldData.id).set({
+                                    db.collection("Paquetes").doc(oldData.id)/*.set({
                                             active: false
-                                        }, { merge: true })
+                                        }, { merge: true })*/
+                                    .delete()
                                     .then(function() {
                                         // console.log("Document written with ID: ", docRef.id);
 

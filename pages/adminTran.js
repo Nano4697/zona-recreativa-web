@@ -40,26 +40,10 @@ class adminTran extends Component
 
 
             columns: [
-                { title: 'Nombre de empresa', field: 'nombre' },
-                { title: 'Tipo de flotilla', field: 'tipo', lookup: { bus: 'Bus', buseta: 'Buseta', microBus: 'Micro bus'  }, initialEditValue: 'bus'},
-                { title: 'Capacidad', field: 'capacidad' },
+                { title: 'Nombre', field: 'nombre' },
+                { title: 'Descripcion', field: 'descripcion' },
+                { title: 'Telefono', field: 'numeroTelefono' },
                 { title: 'Precio', field: 'precio'},
-                { title: 'Foto', field: 'img', render: rowData => (
-                    <img
-                        style={{ height: 36, width: 36, borderRadius: '50%' }}
-                        src={rowData.thumbnailURL}
-                    />
-                    ), editComponent: props => (
-                        <div>
-                            <input id="icon-button-file" type="file" accept="image/*" value={props.value}  ref={this.fileInput} style={{display: 'none'}} onChange={() => {this.setState({img: true})}}/>
-                            <label htmlFor="icon-button-file">
-                                <IconButton color={this.state.img?"primary":"default"} aria-label="upload picture" component="span" >
-                                    <PublishIcon/>
-                                </IconButton>
-                            </label>
-                        </div>
-                    )
-                }
             ]
         }
 
@@ -98,7 +82,7 @@ class adminTran extends Component
                 var db = firebase.firestore()
                 var items = []
 
-                db.collection("Transportes").where("active", "==", true)
+                db.collection("Transportes")/*.where("active", "==", true)*/
                 .get()
                 .then((querySnapshot) => {
                     // console.log(querySnapshot)
@@ -171,18 +155,6 @@ class adminTran extends Component
                         title=''
                         columns={this.state.columns}
                         data={ this.state.items }
-                        detailPanel={[
-                            {
-                                tooltip: 'Ver foto',
-                                render: rowData => {
-                                    return (
-                                        <div className="row justify-content-center">
-                                            <img className="row col-10 my-3" src={rowData.imgURL} />
-                                        </div>
-                                    )
-                                },
-                            }
-                        ]}
                         editable={{
                             onRowAdd: newData =>
                                 new Promise((resolve, reject) =>
@@ -190,16 +162,17 @@ class adminTran extends Component
                                     const data = this.state.items;
                                     newData['id'] = uuidv1();
                                     // newData.price = '₡ ' + newData.price;
-                                    var img = this.fileInput.current.files[0]
+                                    // var img = this.fileInput.current.files[0]
 
-                                    newData.refThumbnail = 'transporte/' + newData.id + '/' + uuidv1() + '.png';
-                                    newData.refImage = 'transporte/' + newData.id + '/' + uuidv1() + '.png';
-                                    newData.thumbnailURL = ''
-                                    newData.imgURL = ''
+                                    // newData.refThumbnail = 'transporte/' + newData.id + '/' + uuidv1() + '.png';
+                                    // newData.refImage = 'transporte/' + newData.id + '/' + uuidv1() + '.png';
+                                    // newData.thumbnailURL = ''
+                                    // newData.imgURL = ''
 
-                                    console.log("asdasd")
+                                    // console.log("asdasd")
                                     //check if there is any empty value
-                                    if (!newData.hasOwnProperty('nombre'))
+                                    if (!newData.hasOwnProperty('nombre') || !newData.hasOwnProperty('descripcion') ||
+                                        !newData.hasOwnProperty('numeroTelefono') || !newData.hasOwnProperty('precio'))
                                     {
                                         this.setState({
                                             modalMsg: 'Debe llenar todos los campos',
@@ -213,87 +186,26 @@ class adminTran extends Component
 
                                         var accessThis = this
 
-                                        var resizeImg = new Promise((resolve, reject) =>
-                                        {
-                                            setTimeout(() =>
-                                            {
-                                                if (typeof img !== 'undefined')
-                                                {
-                                                    Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
-                                                        uri => {
-                                                            newData.thumbnailURI= uri
+                                        var db = firebase.firestore();
 
-                                                            Resizer.imageFileResizer(img, 1000, 1000, 'PNG', 100, 0,
-                                                                uri => {
-                                                                    newData.imgURI= uri
-                                                                    resolve()
-                                                                },
-                                                                'base64'
-                                                            );
-                                                        },
-                                                        'base64'
-                                                    );
-                                                }
-                                                else
-                                                {
-                                                    reject({code: 'upload/NoImage'})
-                                                }
-                                            }, 50)
-                                        })
+                                        db.collection("Transportes").doc(newData.id).set(newData)
+                                        .then(function(docRef) {
+                                            // console.log("Document written with ID: ", docRef.id);
 
-                                        resizeImg.then((success) =>
-                                        {
-                                            var ref = firebase.storage().ref();
-                                            var db = firebase.firestore();
+                                            data.push(newData);
+                                            var message = ''
+                                            var typeMsg = ''
 
-                                            var pkgRef = ref.child(newData.refThumbnail);
-                                            pkgRef.putString(newData.thumbnailURI, 'data_url')
-                                                .then(function(snapshot) {
-                                                    pkgRef.getDownloadURL()
-                                                .then(function(url) {
-                                                    newData.thumbnailURL = url
+                                            message = 'Servicio de transporte agregado exitosamente.'
+                                            typeMsg = 'success'
 
-                                                    //load big image
-                                                    pkgRef = ref.child(newData.refImage);
-                                                    pkgRef.putString(newData.imgURI, 'data_url')
-                                                .then(function(snapshot) {
-                                                    pkgRef.getDownloadURL()
-                                                .then(function(url) {
-                                                    newData.imgURL = url
-
-                                                    delete newData.imgURI;
-                                                    delete newData.thumbnailURI;
-                                                    db.collection("Transportes").doc(newData.id).set(newData)
-                                                .then(function(docRef) {
-                                                    // console.log("Document written with ID: ", docRef.id);
-
-                                                    data.push(newData);
-                                                    var message = ''
-                                                    var typeMsg = ''
-
-                                                    message = 'Servicio de transporte agregado exitosamente.'
-                                                    typeMsg = 'success'
-
-                                                    // console.log(data)
-                                                    accessThis.setState({
-                                                        data,
-                                                        modalMsg: message,
-                                                        modalType: typeMsg,
-                                                        showModal: true
-                                                    }, () => resolve());
-                                                })
-                                                // .catch((error) => {
-                                                //     accessThis.setState({
-                                                //         modalMsg: 'Error al agregar el servicio de transporte. Intentelo más tarde.',
-                                                //         modalType: 'error',
-                                                //         showModal: true
-                                                //     }, () => reject());
-                                                // })
-                                                })
-                                                })
-                                                })
-                                            })
-
+                                            // console.log(data)
+                                            accessThis.setState({
+                                                data,
+                                                modalMsg: message,
+                                                modalType: typeMsg,
+                                                showModal: true
+                                            }, () => resolve());
                                         })
                                         .catch((err) => {
                                             console.log(err)
@@ -324,8 +236,8 @@ class adminTran extends Component
                                     const index = data.indexOf(oldData);
                                     data[index] = newData;
 
-                                    if (!newData.hasOwnProperty('nombre') || !newData.hasOwnProperty('capacidad') ||
-                                        !newData.hasOwnProperty('precio') || !newData.hasOwnProperty('phone'))
+                                    if (!newData.hasOwnProperty('nombre') || !newData.hasOwnProperty('descripcion') ||
+                                        !newData.hasOwnProperty('numeroTelefono') || !newData.hasOwnProperty('precio'))
                                     {
                                         this.setState({
                                             modalMsg: 'Debe completar todos los campos',
@@ -335,80 +247,25 @@ class adminTran extends Component
                                     }
                                     else
                                     {
-                                        var img = this.fileInput.current.files[0]
+                                        var db = firebase.firestore();
 
-                                        var resizeImg = new Promise((resolve, reject) =>
-                                        {
-                                            setTimeout(() =>
-                                            {
-                                                if (typeof img !== 'undefined')
-                                                {
-                                                    Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
-                                                        uri => {
-                                                            thumbnailURI= uri
+                                        db.collection("Transportes").doc(newData.id).set(newData)
+                                        .then(function(docRef) {
+                                            // console.log("Document written with ID: ", docRef.id);
 
-                                                            Resizer.imageFileResizer(img, 500, 500, 'PNG', 100, 0,
-                                                                uri => {
-                                                                    imgURI= uri
-                                                                    resolve()
-                                                                },
-                                                                'base64'
-                                                            );
-                                                        },
-                                                        'base64'
-                                                    );
-                                                }
-                                                else
-                                                {
-                                                    reject({code: 'upload/NoImage'})
-                                                }
-                                            }, 50)
-                                        })
-                                        var accessThis = this
-                                        resizeImg.then((success) =>
-                                        {
-                                            var ref = firebase.storage().ref();
-                                            var db = firebase.firestore();
+                                            var message = ''
+                                            var typeMsg = ''
 
-                                            var pkgRef = ref.child(newData.refThumbnail);
-                                            pkgRef.putString(newData.thumbnailURI, 'data_url')
-                                                .then(function(snapshot) {
-                                                    pkgRef.getDownloadURL()
-                                                .then(function(url) {
-                                                    newData.thumbnailURL = url
+                                            message = 'Servicio de transporte actualizado exitosamente.'
+                                            typeMsg = 'success'
 
-                                                    //load big image
-                                                    pkgRef = ref.child(newData.refImage);
-                                                    pkgRef.putString(newData.imgURI, 'data_url')
-                                                .then(function(snapshot) {
-                                                    pkgRef.getDownloadURL()
-                                                .then(function(url) {
-                                                    newData.imgURL = url
-
-                                                    delete newData.imgURI;
-                                                    delete newData.thumbnailURI;
-                                                    db.collection("Transportes").doc(newData.id).set(newData)
-                                                .then(function(docRef) {
-                                                    // console.log("Document written with ID: ", docRef.id);
-
-                                                    var message = ''
-                                                    var typeMsg = ''
-
-                                                    message = 'Servicio de transporte actualizado exitosamente.'
-                                                    typeMsg = 'success'
-
-                                                    // console.log(data)
-                                                    accessThis.setState({
-                                                        data,
-                                                        modalMsg: message,
-                                                        modalType: typeMsg,
-                                                        showModal: true
-                                                    }, () => resolve());
-                                                })
-                                                })
-                                                })
-                                                })
-                                            })
+                                            // console.log(data)
+                                            accessThis.setState({
+                                                data,
+                                                modalMsg: message,
+                                                modalType: typeMsg,
+                                                showModal: true
+                                            }, () => resolve());
 
                                         })
                                         .catch((err) => {
@@ -420,40 +277,11 @@ class adminTran extends Component
                                             var modalMsg = 'Error al actualizar el servicio de transporte. Intentelo más tarde.'
                                             var modalType = 'error'
 
-                                            if (err.code == 'upload/NoImage')
-                                            {
-                                                newData.imgURL = oldData.imgURL
-                                                newData.thumbnailURL = oldData.thumbnailURL
-                                                newData.refImage = oldData.refImage
-                                                newData.refThumbnail = oldData.refThumbnail
-
-                                                db.collection("Transportes").doc(newData.id).set(newData)
-                                                .then(function(docRef) {
-                                                    // console.log("Document written with ID: ", docRef.id);
-
-                                                    var message = ''
-                                                    var typeMsg = ''
-
-                                                    message = 'Servicio de transporte actualizado exitosamente.'
-                                                    typeMsg = 'success'
-
-                                                    // console.log(data)
-                                                    accessThis.setState({
-                                                        data,
-                                                        modalMsg: message,
-                                                        modalType: typeMsg,
-                                                        showModal: true
-                                                    }, () => resolve());
-                                                })
-                                            }
-                                            else
-                                            {
-                                                accessThis.setState({
-                                                    modalMsg: modalMsg,
-                                                    modalType: modalType,
-                                                    showModal: true
-                                                }, () => reject());
-                                            }
+                                            accessThis.setState({
+                                                modalMsg: modalMsg,
+                                                modalType: modalType,
+                                                showModal: true
+                                            }, () => reject());
                                         })
                                     }
                                 }),
@@ -469,9 +297,10 @@ class adminTran extends Component
                                     // console.log(oldData)
 
                                     // load thumbnail
-                                    db.collection("Transportes").doc(oldData.id).set({
+                                    db.collection("Transportes").doc(oldData.id)/*.set({
                                             active: false
-                                        }, { merge: true })
+                                        }, { merge: true })*/
+                                    .delete()
                                     .then(function() {
                                         // console.log("Document written with ID: ", docRef.id);
 

@@ -75,7 +75,7 @@ class adminAlimen extends Component
                 var db = firebase.firestore()
                 var items = []
 
-                db.collection("Comidas").where("active", "==", true)
+                db.collection("Comidas")/*.where("active", "==", true)*/
                 .get()
                 .then((querySnapshot) => {
                     // console.log(querySnapshot)
@@ -261,9 +261,10 @@ class adminAlimen extends Component
                                     // console.log(oldData)
 
                                     // load thumbnail
-                                    db.collection("Comidas").doc(oldData.id).set({
+                                    db.collection("Comidas").doc(oldData.id)/*.set({
                                             active: false
-                                        }, { merge: true })
+                                        }, { merge: true })*/
+                                    .delete()
                                     .then(function() {
                                         // console.log("Document written with ID: ", docRef.id);
 

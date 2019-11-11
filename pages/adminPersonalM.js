@@ -47,8 +47,7 @@ class adminPersonalM extends Component
 
             columns: [
                 { title: 'Nombre', field: 'nombre' },
-                { title: 'Empresa', field: 'tipo', lookup: { publico: 'Publico', privado: 'Privado' }, initialEditValue: 'publico'},
-                { title: 'Zona de cobertura', field: 'zona.address', editComponent: props => (
+                { title: 'Descripcion', field: 'descripcion'/*, editComponent: props => (
                     <PlacesAutocomplete value={this.state.address} onChange={this.handleChange} onSelect={this.handleSelect} searchOptions={searchOptions}>
                         {
                             ({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
@@ -85,8 +84,9 @@ class adminPersonalM extends Component
                             )
                         }
                     </PlacesAutocomplete>
-                ) },
-                { title: 'Telefono', field: 'phone' }
+                )*/ },
+                { title: 'Telefono', field: 'numeroTelefono' },
+                { title: 'Provincia', field: 'provincia' }
             ]
         }
 
@@ -123,7 +123,7 @@ class adminPersonalM extends Component
                 var db = firebase.firestore()
                 var items = []
 
-                db.collection("PersonalMedico").where("active", "==", true)
+                db.collection("PersonalMedico")/*.where("active", "==", true)*/
                 .get()
                 .then((querySnapshot) => {
                     // console.log(querySnapshot)
@@ -238,10 +238,10 @@ class adminPersonalM extends Component
                                         var db = firebase.firestore();
                                         var accessThis = this
 
-                                        newData.zona = {
-                                            address: accessThis.state.address,
-                                            location: accessThis.state.location
-                                        }
+                                        // newData.zona = {
+                                        //     address: accessThis.state.address,
+                                        //     location: accessThis.state.location
+                                        // }
 
                                         // console.log(newData)
 
@@ -336,9 +336,10 @@ class adminPersonalM extends Component
                                     // console.log(oldData)
 
                                     // load thumbnail
-                                    db.collection("PersonalMedico").doc(oldData.id).set({
+                                    db.collection("PersonalMedico").doc(oldData.id)/*.set({
                                             active: false
-                                        }, { merge: true })
+                                        }, { merge: true })*/
+                                    .delete()
                                     .then(function() {
                                         // console.log("Document written with ID: ", docRef.id);
 

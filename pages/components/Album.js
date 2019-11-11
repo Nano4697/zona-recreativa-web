@@ -6,9 +6,18 @@ class Album extends React.Component {
         super(props);
 
         this.state = {
-            images: this.props.images,
+            images: [],
             selectAllChecked: false
         };
+
+        this.state.images = this.props.images.map((item) => {
+            return {
+                thumbnail: item,
+                src: item,
+                thumbnailWidth: 10,
+                thumbnailHeight: 10
+            }
+        })
 
         console.log("Album", props)
 

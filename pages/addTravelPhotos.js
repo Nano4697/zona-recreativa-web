@@ -7,7 +7,6 @@ import TextField from '@material-ui/core/TextField';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarAlert from './components/SnackbarAlert';
 import Router from 'next/router';
-import Resizer from 'react-image-file-resizer';
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 import "firebase/auth";
@@ -28,8 +27,8 @@ class addTravelPhotos extends Component
             code: uniqid(),
             name: '',
             photos: [],
-            progress: 0,
-            uploading: false,
+            progress: 50,
+            uploading: true,
             modalMsg: '',
             modalType: '',
             showModal: false
@@ -89,6 +88,7 @@ class addTravelPhotos extends Component
 
     handleSubmit()
     {
+        console.log(this.state)
         this.setState({
             uploading: true,
             progress: 0,
@@ -101,78 +101,51 @@ class addTravelPhotos extends Component
         var refs = []
 
         var accessThis = this;
-        var processedImgs = [];
-        var imgs = this.state.photos;
 
-        Promise.all(imgs.map((img, i) => {
-                return new Promise((resolve, reject) => {
-                    let thumbnailURI = '';
-                    let imgURI = '';
 
-                    if (typeof img !== 'undefined')
-                    {
-                        Resizer.imageFileResizer(img, 75, 75, 'PNG', 100, 0,
-                            uri => {
-                                thumbnailURI= uri
+        Promise.all(this.state.photos.map( (file, i) => {
+            var imgRef = 'tripPhotos/'+ accessThis.state.code + '/' + accessThis.state.code + '_' + i + '.png'
+            refs.push(imgRef)
+            var refChild = ref.child(imgRef)
 
-                                Resizer.imageFileResizer(img, 1500, 1500, 'PNG', 100, 0,
-                                    uri => {
-                                        imgURI= uri;
-                                        resolve({thumbnailURI, imgURI, thumbnailWidth: 75, thumbnailHeight: 75})
-                                    },
-                                    'base64'
-                                );
-                            },
-                            'base64'
-                        );
-                    }
+            var uploadTask = refChild.put(file)
+
+            uploadTask.on('state_changed', null, null, function() {
+                accessThis.setState({
+                    progress: accessThis.state.progress + 100/total
                 })
-            })
-        )
-        .then((success) => {
-            console.log(success)
-        })
+            });
 
-        // Promise.all(this.state.photos.map( (file, i) => {
-        //     var imgRef = 'tripPhotos/'+ accessThis.state.code + '/' + accessThis.state.code + '_' + i + '.png'
-        //     refs.push(imgRef)
-        //     var refChild = ref.child(imgRef)
-        //
-        //     var uploadTask = refChild.put(file)
-        //
-        //     uploadTask.on('state_changed', null, null, function() {
-        //         accessThis.setState({
-        //             progress: accessThis.state.progress + 100/total
-        //         })
-        //     });
-        //
-        //     return uploadTask.then(function(snapshot) {
-        //             return snapshot.ref.getDownloadURL()
-        //         })
-        //     }
-        // ))
-        // .then((values) => {
-        //     // console.log(values)
-        //
-        //     db.collection("ImagenesViaje").doc(accessThis.state.code).set( {id: accessThis.state.code, nombre: accessThis.state.name, imgs: values, refs: refs})
-        //     .then(function() {
-        //         // console.log("Document written with ID: ", docRef.id);
-        //         var message = 'Imagenes cargadas exitosamente.'
-        //         var typeMsg = 'success'
-        //
-        //         setTimeout(() =>
-        //         {
-        //             accessThis.setState({
-        //                 modalMsg: message,
-        //                 modalType: typeMsg,
-        //                 showModal: true,
-        //                 openImgLoad: false,
-        //                 images: [],
-        //                 uploading: false
-        //             });
-        //         }, 1000);
-        //     })
-        // })
+            return uploadTask.then(function(snapshot) {
+                    return snapshot.ref.getDownloadURL()
+                })
+            }
+        ))
+        .then((values) => {
+            console.log(values)
+
+            db.collection("ImagenesViaje").doc(accessThis.state.code).set( {id: accessThis.state.code, nombre: accessThis.state.name, imgs: values, refs: refs})
+            .then(function() {
+                // console.log("Document written with ID: ", docRef.id);
+                var message = 'Imagenes cargadas exitosamente.'
+                var typeMsg = 'success'
+
+                setTimeout(() =>
+                {
+                    accessThis.setState({
+                        modalMsg: message,
+                        modalType: typeMsg,
+                        showModal: true,
+                        openImgLoad: false,
+                        images: [],
+                        uploading: false
+                    });
+                }, 1000);
+            })
+        })
+        .catch((error) => {
+            console.log(error)
+        })
     }
 
     handleInputChange(e)
@@ -190,10 +163,10 @@ class addTravelPhotos extends Component
 
     render()
     {
-        var showLoader = this.state.progress > 100 ? <LinearProgress className="mb-3" variant="determinate" value={this.state.progress}/>:'';
+        var showLoader = (this.state.progress > 0 || this.state.uploading) ? <LinearProgress className="mt-3" variant="determinate" value={this.state.progress}/>:'';
 
         var disableButton = this.state.uploading ? (<div>
-            <button type="button" className="btn btn-primary mt-3" type="submit" disabled>
+            <button type="button" className="btn btn-secondary mt-3" type="submit" disabled>
                 Confirmar
             </button>
         </div>) : (<div>
@@ -234,7 +207,6 @@ class addTravelPhotos extends Component
                         </div>
 
                         <div className="col-9 mx-auto mt-3">
-                            {showLoader}
                             <DropzoneArea
                                 onChange={this.handleChangePhotos.bind(this)}
                                 filesLimit={250}
@@ -242,10 +214,11 @@ class addTravelPhotos extends Component
                                 showPreviews={false}
                                 maxFileSize={5000000}
                             />
+                            {showLoader}
                         </div>
 
                         <div style={{textAlign: 'center'}}>
-                            <button type="button" className="btn btn-primary mt-3" onClick={this.handleSubmit}>
+                            <button type="button" className="btn btn-primary mt-5" onClick={this.handleSubmit}>
                                 Confirmar
                             </button>
                         </div>
