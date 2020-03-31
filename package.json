@@ -32,7 +32,7 @@
     "jimp": "^0.8.5",
     "material-table": "^1.52.0",
     "material-ui-dropzone": "^2.4.5",
-    "next": "^9.0.5",
+    "next": "^9.3.2",
     "next-env": "^1.1.0",
     "next-fonts": "^0.18.0",
     "ol": "^6.1.0",
